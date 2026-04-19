@@ -1,0 +1,23 @@
+{
+  "taxYear": 2025,
+  "note": "2025 Part B/D surcharges based on 2023 MAGI (2-year lookback). Base Part B premium $185.00/mo.",
+  "partBBase": 185.00,
+  "tiers": {
+    "single": [
+      { "magiMax": 106000, "partBPremium": 185.00, "partDSurcharge": 0.00 },
+      { "magiMax": 133000, "partBPremium": 259.00, "partDSurcharge": 13.70 },
+      { "magiMax": 167000, "partBPremium": 370.00, "partDSurcharge": 35.30 },
+      { "magiMax": 200000, "partBPremium": 480.90, "partDSurcharge": 57.00 },
+      { "magiMax": 500000, "partBPremium": 591.90, "partDSurcharge": 78.60 },
+      { "magiMax": null,   "partBPremium": 628.90, "partDSurcharge": 85.80 }
+    ],
+    "mfj": [
+      { "magiMax": 212000, "partBPremium": 185.00, "partDSurcharge": 0.00 },
+      { "magiMax": 266000, "partBPremium": 259.00, "partDSurcharge": 13.70 },
+      { "magiMax": 334000, "partBPremium": 370.00, "partDSurcharge": 35.30 },
+      { "magiMax": 400000, "partBPremium": 480.90, "partDSurcharge": 57.00 },
+      { "magiMax": 750000, "partBPremium": 591.90, "partDSurcharge": 78.60 },
+      { "magiMax": null,   "partBPremium": 628.90, "partDSurcharge": 85.80 }
+    ]
+  }
+}

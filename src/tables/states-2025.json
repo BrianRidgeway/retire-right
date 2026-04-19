@@ -1,0 +1,78 @@
+{
+  "note": "Simplified 2025 state income tax. CA/NY use approximate top-down brackets; PA flat; FL/TX/WA have no individual income tax. SS is not taxed at the state level in any of these states; CA also exempts SS; NY exempts up to $20,000 of pension/IRA income (age 59.5+). This is an approximation; verify with a tax pro.",
+  "states": {
+    "CA": {
+      "hasIncomeTax": true,
+      "taxesSocialSecurity": false,
+      "taxesRetirementDistributions": true,
+      "pensionExemption": 0,
+      "brackets": {
+        "single": [
+          { "rate": 0.01,   "min": 0,      "max": 10756 },
+          { "rate": 0.02,   "min": 10756,  "max": 25499 },
+          { "rate": 0.04,   "min": 25499,  "max": 40245 },
+          { "rate": 0.06,   "min": 40245,  "max": 55866 },
+          { "rate": 0.08,   "min": 55866,  "max": 70606 },
+          { "rate": 0.093,  "min": 70606,  "max": 360659 },
+          { "rate": 0.103,  "min": 360659, "max": 432787 },
+          { "rate": 0.113,  "min": 432787, "max": 721314 },
+          { "rate": 0.123,  "min": 721314, "max": null }
+        ],
+        "mfj": [
+          { "rate": 0.01,   "min": 0,        "max": 21512 },
+          { "rate": 0.02,   "min": 21512,    "max": 50998 },
+          { "rate": 0.04,   "min": 50998,    "max": 80490 },
+          { "rate": 0.06,   "min": 80490,    "max": 111732 },
+          { "rate": 0.08,   "min": 111732,   "max": 141212 },
+          { "rate": 0.093,  "min": 141212,   "max": 721318 },
+          { "rate": 0.103,  "min": 721318,   "max": 865574 },
+          { "rate": 0.113,  "min": 865574,   "max": 1442628 },
+          { "rate": 0.123,  "min": 1442628,  "max": null }
+        ]
+      },
+      "standardDeduction": { "single": 5540, "mfj": 11080 }
+    },
+    "NY": {
+      "hasIncomeTax": true,
+      "taxesSocialSecurity": false,
+      "taxesRetirementDistributions": true,
+      "pensionExemption": 20000,
+      "brackets": {
+        "single": [
+          { "rate": 0.04,    "min": 0,         "max": 8500 },
+          { "rate": 0.045,   "min": 8500,      "max": 11700 },
+          { "rate": 0.0525,  "min": 11700,     "max": 13900 },
+          { "rate": 0.055,   "min": 13900,     "max": 80650 },
+          { "rate": 0.06,    "min": 80650,     "max": 215400 },
+          { "rate": 0.0685,  "min": 215400,    "max": 1077550 },
+          { "rate": 0.0965,  "min": 1077550,   "max": 5000000 },
+          { "rate": 0.103,   "min": 5000000,   "max": 25000000 },
+          { "rate": 0.109,   "min": 25000000,  "max": null }
+        ],
+        "mfj": [
+          { "rate": 0.04,    "min": 0,         "max": 17150 },
+          { "rate": 0.045,   "min": 17150,     "max": 23600 },
+          { "rate": 0.0525,  "min": 23600,     "max": 27900 },
+          { "rate": 0.055,   "min": 27900,     "max": 161550 },
+          { "rate": 0.06,    "min": 161550,    "max": 323200 },
+          { "rate": 0.0685,  "min": 323200,    "max": 2155350 },
+          { "rate": 0.0965,  "min": 2155350,   "max": 5000000 },
+          { "rate": 0.103,   "min": 5000000,   "max": 25000000 },
+          { "rate": 0.109,   "min": 25000000,  "max": null }
+        ]
+      },
+      "standardDeduction": { "single": 8000, "mfj": 16050 }
+    },
+    "PA": {
+      "hasIncomeTax": true,
+      "taxesSocialSecurity": false,
+      "taxesRetirementDistributions": false,
+      "pensionExemption": 0,
+      "flatRate": 0.0307,
+      "standardDeduction": { "single": 0, "mfj": 0 }
+    },
+    "FL": { "hasIncomeTax": false },
+    "TX": { "hasIncomeTax": false },
+    "WA": { "hasIncomeTax": false }
+  }
+}
