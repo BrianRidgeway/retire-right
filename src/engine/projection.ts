@@ -221,7 +221,7 @@ export function runScenario(scenario: Scenario): YearResult[] {
         retirementDistributions: rmdTaken.ordinaryTaxable + rothConversionTaxable + withdrawalsTraditionalTaxable,
         taxableCapitalGains: extraLtcgTaxable,
         interestAndDividends: 0,
-        primaryAgeAtLeast595: primaryAge >= 59.5,
+        primaryAge,
       });
       stateTax = state.tax;
 

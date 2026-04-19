@@ -45,10 +45,15 @@ export type StateTaxConfig =
       hasIncomeTax: true;
       taxesSocialSecurity: boolean;
       taxesRetirementDistributions: boolean;
+      /** Dollar cap on retirement-income exclusion for qualifying ages. */
       pensionExemption: number;
+      /** Minimum age for the pension exemption to apply. Defaults to 59.5 if omitted. MD uses 65. */
+      pensionExemptionMinAge?: number;
       brackets?: Record<StatusKey, Bracket[]>;
       flatRate?: number;
       standardDeduction: { single: number; mfj: number };
+      /** Flat local (county/city) rate added to the state-level tax. Defaults to 0. MD counties ~3%. */
+      localSurcharge?: number;
     };
 
 export const FEDERAL: FederalTables = federal2025 as FederalTables;

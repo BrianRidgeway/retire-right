@@ -1,5 +1,5 @@
 {
-  "note": "Simplified 2025 state income tax. CA/NY use approximate top-down brackets; PA flat; FL/TX/WA have no individual income tax. SS is not taxed at the state level in any of these states; CA also exempts SS; NY exempts up to $20,000 of pension/IRA income (age 59.5+). This is an approximation; verify with a tax pro.",
+  "note": "Simplified 2025 state income tax. CA/NY/MD use progressive brackets; PA flat; FL/TX/WA have no individual income tax. None of these states tax Social Security. NY exempts up to $20,000 of pension/IRA income (age 59.5+); PA exempts all retirement distributions (age 59.5+); MD exempts up to $39,500 pension/IRA income (age 65+) and applies a ~3% county local tax on top of state brackets. This is an approximation; verify with a tax pro. Add more states by extending this file and the StateTaxConfig type.",
   "states": {
     "CA": {
       "hasIncomeTax": true,
@@ -70,6 +70,37 @@
       "pensionExemption": 0,
       "flatRate": 0.0307,
       "standardDeduction": { "single": 0, "mfj": 0 }
+    },
+    "MD": {
+      "hasIncomeTax": true,
+      "taxesSocialSecurity": false,
+      "taxesRetirementDistributions": true,
+      "pensionExemption": 39500,
+      "pensionExemptionMinAge": 65,
+      "localSurcharge": 0.03,
+      "brackets": {
+        "single": [
+          { "rate": 0.02,   "min": 0,       "max": 1000 },
+          { "rate": 0.03,   "min": 1000,    "max": 2000 },
+          { "rate": 0.04,   "min": 2000,    "max": 3000 },
+          { "rate": 0.0475, "min": 3000,    "max": 100000 },
+          { "rate": 0.05,   "min": 100000,  "max": 125000 },
+          { "rate": 0.0525, "min": 125000,  "max": 150000 },
+          { "rate": 0.055,  "min": 150000,  "max": 250000 },
+          { "rate": 0.0575, "min": 250000,  "max": null }
+        ],
+        "mfj": [
+          { "rate": 0.02,   "min": 0,       "max": 1000 },
+          { "rate": 0.03,   "min": 1000,    "max": 2000 },
+          { "rate": 0.04,   "min": 2000,    "max": 3000 },
+          { "rate": 0.0475, "min": 3000,    "max": 150000 },
+          { "rate": 0.05,   "min": 150000,  "max": 175000 },
+          { "rate": 0.0525, "min": 175000,  "max": 225000 },
+          { "rate": 0.055,  "min": 225000,  "max": 300000 },
+          { "rate": 0.0575, "min": 300000,  "max": null }
+        ]
+      },
+      "standardDeduction": { "single": 2550, "mfj": 5150 }
     },
     "FL": { "hasIncomeTax": false },
     "TX": { "hasIncomeTax": false },
