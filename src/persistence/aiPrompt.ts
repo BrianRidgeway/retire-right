@@ -42,6 +42,7 @@ export function buildAiPrompt(scenario: Scenario, strategies: StrategyResult[]):
   lines.push(`- Pre-65 healthcare add-on: $${fmt(scenario.spending.healthcarePre65Annual)}/yr`);
   lines.push(`- Inflation: ${(scenario.assumptions.inflation * 100).toFixed(1)}%`);
   lines.push(`- Discount rate for scoring: ${(scenario.assumptions.discountRate * 100).toFixed(1)}%`);
+  lines.push(`- Assumed heir marginal tax rate on inherited traditional IRA/401(k): ${(scenario.assumptions.heirMarginalTaxRate * 100).toFixed(0)}%`);
   lines.push('');
 
   if (strategies.length > 0) {
@@ -50,8 +51,9 @@ export function buildAiPrompt(scenario: Scenario, strategies: StrategyResult[]):
       lines.push('');
       lines.push(`### ${r.strategy.label}`);
       lines.push(`- Lifetime spending covered: $${fmt(r.lifetimeAfterTax)}`);
-      lines.push(`- Lifetime tax paid: $${fmt(r.lifetimeTax)}`);
+      lines.push(`- Lifetime tax paid (you): $${fmt(r.lifetimeTax)}`);
       lines.push(`- Ending net worth (age ${h.planEndAge}): $${fmt(r.endingNetWorth)}`);
+      lines.push(`- Heirs receive after tax: $${fmt(r.endingHeirNetWorth)}`);
       lines.push(`- Shortfall any year: ${r.anyShortfall ? 'YES' : 'no'}`);
       if (r.actions.length > 0) {
         lines.push(`- Actions:`);

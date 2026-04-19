@@ -102,6 +102,7 @@ function evaluate(scenario: Scenario): StrategyResult {
     lifetimeAfterTax: score.lifetimeAfterTax,
     lifetimeTax: score.lifetimeTax,
     endingNetWorth: score.endingNetWorth,
+    endingHeirNetWorth: score.endingHeirNetWorth,
     anyShortfall: score.anyShortfall,
     actions: [],
     rationale: '',

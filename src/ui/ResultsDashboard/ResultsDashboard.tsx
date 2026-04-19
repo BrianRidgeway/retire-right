@@ -6,6 +6,7 @@ const fmt = (n: number) => `$${Math.round(n).toLocaleString('en-US')}`;
 export function ResultsDashboard() {
   const scenario = useScenarioStore((s) => s.scenario);
   const results = useScenarioStore((s) => s.currentResults);
+  const update = useScenarioStore((s) => s.updateScenario);
 
   if (results.length === 0) {
     return (
@@ -17,13 +18,61 @@ export function ResultsDashboard() {
 
   const totals = lifetimeTotals(results, scenario.assumptions.discountRate, scenario.startYear);
   const last = results[results.length - 1];
+  const hasActiveStrategy =
+    Object.keys(scenario.strategy.rothConversions).length > 0 ||
+    Object.keys(scenario.strategy.ssClaimAges).length > 0 ||
+    scenario.strategy.withdrawalPolicy !== 'conventional';
+  const heirGap = totals.endingNetWorth - totals.endingHeirNetWorth;
+
+  const revertStrategy = () =>
+    update((s) => ({
+      ...s,
+      strategy: {
+        rothConversions: {},
+        withdrawalPolicy: 'conventional',
+        ssClaimAges: {},
+        label: 'Current plan',
+      },
+    }));
 
   return (
     <div>
+      {hasActiveStrategy && (
+        <div
+          className="panel"
+          style={{
+            borderColor: 'var(--accent)',
+            background: 'rgba(94,234,212,0.08)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 16,
+          }}
+        >
+          <div>
+            <strong style={{ color: 'var(--accent)' }}>Viewing strategy: {scenario.strategy.label}</strong>
+            <div className="muted" style={{ fontSize: 12, marginTop: 4 }}>
+              The numbers and charts below reflect this strategy's conversion schedule, SS claim ages, and
+              withdrawal policy. Revert to go back to your untouched inputs.
+            </div>
+          </div>
+          <button onClick={revertStrategy}>Revert to current plan</button>
+        </div>
+      )}
+
       <div className="cards">
         <Card label="Lifetime spending covered" value={fmt(totals.lifetimeAfterTax)} />
         <Card label="Lifetime tax paid" value={fmt(totals.lifetimeTax)} />
         <Card label={`Ending net worth (${last.year})`} value={fmt(totals.endingNetWorth)} />
+        <Card
+          label="Heirs receive after tax"
+          value={fmt(totals.endingHeirNetWorth)}
+          sub={
+            heirGap > 0
+              ? `${fmt(heirGap)} lost to heir income tax on inherited traditional IRA/401(k)`
+              : 'No heir income tax (all Roth/taxable/stepped-up)'
+          }
+        />
         <Card
           label="Any shortfall?"
           value={totals.anyShortfall ? 'Yes' : 'No'}

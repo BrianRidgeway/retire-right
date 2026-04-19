@@ -88,6 +88,7 @@ export function makeDefaultScenario(): Scenario {
       discountRate: 0.03,
       taxLawMode: 'current-law',
       indexTablesToInflation: true,
+      heirMarginalTaxRate: 0.24,
     },
     strategy: {
       rothConversions: {},

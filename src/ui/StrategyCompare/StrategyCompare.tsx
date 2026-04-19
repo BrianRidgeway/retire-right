@@ -1,13 +1,19 @@
 import { useScenarioStore } from '../../state/scenarioStore';
-import { StrategyResult } from '../../types';
+import { Scenario, StrategyResult } from '../../types';
 
 const fmt = (n: number) => `$${Math.round(n).toLocaleString('en-US')}`;
 
-export function StrategyCompare() {
+export function StrategyCompare({ onApply }: { onApply?: () => void }) {
   const optimizerResults = useScenarioStore((s) => s.optimizerResults);
   const running = useScenarioStore((s) => s.optimizerRunning);
   const runOptimizer = useScenarioStore((s) => s.runOptimizer);
-  const applyStrategy = useScenarioStore((s) => s.updateScenario);
+  const updateScenario = useScenarioStore((s) => s.updateScenario);
+  const currentStrategy = useScenarioStore((s) => s.scenario.strategy);
+
+  const applyStrategy = (r: StrategyResult) => {
+    updateScenario((s: Scenario) => ({ ...s, strategy: r.strategy }));
+    if (onApply) onApply();
+  };
 
   if (running) {
     return (
@@ -43,13 +49,27 @@ export function StrategyCompare() {
           <button onClick={() => runOptimizer()}>Re-run</button>
         </div>
         <div className="muted" style={{ fontSize: 13, marginTop: 8 }}>
-          Ranked by score (present value of lifetime spending covered + ending net worth). Each card lists the
-          specific actions to take and the reasoning.
+          Ranked by score (present value of lifetime spending covered + after-heir-tax ending wealth). Each card
+          lists the specific actions to take and the reasoning. Click <strong>Apply</strong> to load the strategy
+          into your plan and jump to the Results tab to see the year-by-year effect — you can revert from there.
         </div>
       </div>
 
-      <StrategySection title="Baseline — your current plan" strategies={[baseline]} baseline={baseline} onApply={applyStrategy} />
-      <StrategySection title="Alternatives" strategies={ranked} baseline={baseline} onApply={applyStrategy} highlightFirst />
+      <StrategySection
+        title="Baseline — your current plan"
+        strategies={[baseline]}
+        baseline={baseline}
+        currentStrategyLabel={currentStrategy.label}
+        onApply={applyStrategy}
+      />
+      <StrategySection
+        title="Alternatives"
+        strategies={ranked}
+        baseline={baseline}
+        currentStrategyLabel={currentStrategy.label}
+        onApply={applyStrategy}
+        highlightFirst
+      />
     </div>
   );
 }
@@ -58,13 +78,15 @@ function StrategySection({
   title,
   strategies,
   baseline,
+  currentStrategyLabel,
   onApply,
   highlightFirst,
 }: {
   title: string;
   strategies: StrategyResult[];
   baseline: StrategyResult;
-  onApply: (fn: (s: any) => any) => void;
+  currentStrategyLabel: string;
+  onApply: (r: StrategyResult) => void;
   highlightFirst?: boolean;
 }) {
   return (
@@ -77,7 +99,8 @@ function StrategySection({
             r={r}
             baseline={baseline}
             best={highlightFirst && i === 0}
-            onApply={() => onApply((s: any) => ({ ...s, strategy: r.strategy }))}
+            isActive={r.strategy.label === currentStrategyLabel}
+            onApply={() => onApply(r)}
           />
         ))}
       </div>
@@ -89,14 +112,16 @@ function StrategyCard({
   r,
   baseline,
   best,
+  isActive,
   onApply,
 }: {
   r: StrategyResult;
   baseline: StrategyResult;
   best?: boolean;
+  isActive?: boolean;
   onApply: () => void;
 }) {
-  const delta = r.lifetimeAfterTax - baseline.lifetimeAfterTax + (r.endingNetWorth - baseline.endingNetWorth);
+  const dHeir = r.endingHeirNetWorth - baseline.endingHeirNetWorth;
   const isBaseline = r === baseline;
 
   return (
@@ -106,17 +131,22 @@ function StrategyCard({
           <h4 style={{ margin: 0 }}>
             {r.strategy.label}
             {best && <span style={{ color: 'var(--accent)', fontSize: 11, marginLeft: 8 }}>★ best</span>}
+            {isActive && (
+              <span style={{ color: 'var(--good)', fontSize: 11, marginLeft: 8 }}>● currently active</span>
+            )}
           </h4>
           {!isBaseline && (
-            <div className={`delta ${delta >= 0 ? 'pos' : 'neg'}`} style={{ marginTop: 4 }}>
-              {delta >= 0 ? '+' : '−'}{fmt(Math.abs(delta))}{' '}
-              <span className="muted" style={{ fontSize: 11, fontWeight: 400 }}>vs baseline (lifetime + ending)</span>
+            <div className={`delta ${dHeir >= 0 ? 'pos' : 'neg'}`} style={{ marginTop: 4 }}>
+              {dHeir >= 0 ? '+' : '−'}{fmt(Math.abs(dHeir))}{' '}
+              <span className="muted" style={{ fontSize: 11, fontWeight: 400 }}>
+                to heirs after tax vs baseline
+              </span>
             </div>
           )}
         </div>
         {!isBaseline && (
           <button className="primary" onClick={onApply}>
-            Apply
+            {isActive ? 'Applied ✓' : 'Apply & view'}
           </button>
         )}
       </div>
@@ -127,7 +157,10 @@ function StrategyCard({
         </div>
         <ul style={{ marginTop: 0, paddingLeft: 18, fontSize: 13 }}>
           {r.actions.map((a, i) => (
-            <li key={i} style={a.startsWith('  •') ? { listStyle: 'none', marginLeft: -18, color: 'var(--text-dim)' } : undefined}>
+            <li
+              key={i}
+              style={a.startsWith('  •') ? { listStyle: 'none', marginLeft: -18, color: 'var(--text-dim)' } : undefined}
+            >
               {a.replace(/^\s+•\s*/, '')}
             </li>
           ))}
@@ -141,18 +174,22 @@ function StrategyCard({
         <div style={{ fontSize: 13, lineHeight: 1.5 }}>{r.rationale}</div>
       </div>
 
-      <div className="grid-3" style={{ marginTop: 12, fontSize: 12 }}>
+      <div className="grid-4" style={{ marginTop: 12, fontSize: 12 }}>
         <div>
           <div className="muted">Lifetime spending</div>
           <div>{fmt(r.lifetimeAfterTax)}</div>
         </div>
         <div>
-          <div className="muted">Lifetime tax</div>
+          <div className="muted">Lifetime tax (you)</div>
           <div>{fmt(r.lifetimeTax)}</div>
         </div>
         <div>
           <div className="muted">Ending net worth</div>
           <div>{fmt(r.endingNetWorth)}</div>
+        </div>
+        <div>
+          <div className="muted">Heirs after tax</div>
+          <div>{fmt(r.endingHeirNetWorth)}</div>
         </div>
       </div>
 

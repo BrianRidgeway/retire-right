@@ -51,7 +51,7 @@ export function App() {
 
       {tab === 'inputs' && <InputWizard />}
       {tab === 'results' && <ResultsDashboard />}
-      {tab === 'strategies' && <StrategyCompare />}
+      {tab === 'strategies' && <StrategyCompare onApply={() => setTab('results')} />}
 
       {exportOpen && <ExportPromptModal onClose={() => setExportOpen(false)} />}
     </div>

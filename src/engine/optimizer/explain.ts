@@ -84,16 +84,19 @@ function capitalize(s: string): string {
  */
 export function describeRationale(r: StrategyResult, baseline: StrategyResult): string {
   const label = r.strategy.label;
-  const dTax = baseline.lifetimeTax - r.lifetimeTax; // positive = saves tax
+  const dTax = baseline.lifetimeTax - r.lifetimeTax;
   const dEnd = r.endingNetWorth - baseline.endingNetWorth;
-  const tail = ` In this scenario it saves ${fmt(Math.max(0, dTax))} in lifetime tax and ends with ${dEnd >= 0 ? fmt(dEnd) + ' more' : fmt(-dEnd) + ' less'} net worth vs do-nothing.`;
+  const dHeir = r.endingHeirNetWorth - baseline.endingHeirNetWorth;
+  const faceTail = ` In this scenario it saves ${fmt(Math.max(0, dTax))} in lifetime tax and ends with ${dEnd >= 0 ? fmt(dEnd) + ' more' : fmt(-dEnd) + ' less'} face-value net worth vs do-nothing.`;
+  const heirTail = ` After factoring in taxes your heirs would owe on inherited accounts, this leaves them ${dHeir >= 0 ? fmt(dHeir) + ' more' : fmt(-dHeir) + ' less'} than the do-nothing plan.`;
 
   if (label.toLowerCase().includes('roth ladder')) {
     return (
       `Converts traditional IRA dollars to Roth during low-income years before RMDs begin. ` +
       `You pay ordinary income tax now — when your bracket is likely lower — in exchange for smaller mandatory RMDs later, ` +
-      `a lower MAGI in Medicare years (avoiding IRMAA surcharges), and tax-free growth on the converted dollars forever.` +
-      tail
+      `a lower MAGI in Medicare years (avoiding IRMAA surcharges), tax-free growth on the converted dollars forever, ` +
+      `and — under the SECURE Act 10-year rule — a tax-free inheritance instead of forcing heirs to pay ordinary income tax on withdrawals.` +
+      faceTail + heirTail
     );
   }
   if (label.toLowerCase().includes('delay ss')) {
@@ -101,19 +104,20 @@ export function describeRationale(r: StrategyResult, baseline: StrategyResult): 
       `Each year you delay Social Security past Full Retirement Age (67) earns a guaranteed +8% on your benefit, ` +
       `which is then indexed to inflation for life. Break-even vs claiming at 67 is roughly age 82; if either spouse ` +
       `lives past that, lifetime benefits are higher — and the higher benefit becomes the survivor benefit for whoever outlives the other.` +
-      tail
+      faceTail + heirTail
     );
   }
   if (label.toLowerCase().includes('fully optimized')) {
     return (
       `The optimizer searched combinations of Social Security claim ages (62–70 per spouse), three withdrawal-order policies, ` +
-      `and per-year Roth conversion amounts anchored at bracket and IRMAA tier ceilings. This combination maximized the ` +
-      `present value of lifetime covered spending plus ending net worth, discounted at your chosen rate.` +
-      tail
+      `and per-year Roth conversion amounts anchored at bracket and IRMAA tier ceilings. It scores strategies on the present ` +
+      `value of covered spending plus after-heir-tax ending wealth, so the result accounts for the tax your heirs would owe ` +
+      `on inherited traditional IRA dollars.` +
+      faceTail + heirTail
     );
   }
   if (label.toLowerCase().includes('do nothing')) {
     return `Keeps your current inputs exactly as entered — no Roth conversions, SS claim ages unchanged, withdrawal order is the default (taxable → traditional → Roth).`;
   }
-  return `Custom strategy.` + tail;
+  return `Custom strategy.` + faceTail + heirTail;
 }

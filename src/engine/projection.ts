@@ -20,6 +20,7 @@ import {
   isTraditional,
   withdrawFromAccounts,
 } from './accounts';
+import { heirNetValue } from './heir';
 
 type StatusKey = 'single' | 'mfj';
 
@@ -259,6 +260,7 @@ export function runScenario(scenario: Scenario): YearResult[] {
       costBasis: a.type === 'taxable' ? a.costBasis : undefined,
     }));
     const netWorthEoy = accountStates.reduce((s, a) => s + a.balance, 0);
+    const heirNetWorthEoy = heirNetValue(accountStates, assumptions.heirMarginalTaxRate);
 
     results.push({
       year,
@@ -291,6 +293,7 @@ export function runScenario(scenario: Scenario): YearResult[] {
       cashShortfall,
       balancesEoy,
       netWorthEoy,
+      heirNetWorthEoy,
     });
 
     magiHistory.push(magiIrmaa);

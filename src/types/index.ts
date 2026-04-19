@@ -80,6 +80,12 @@ export const AssumptionsSchema = z.object({
   discountRate: z.number().default(0.03),
   taxLawMode: z.enum(['current-law', 'tcja-sunset']).default('current-law'),
   indexTablesToInflation: z.boolean().default(true),
+  /**
+   * Effective marginal federal+state rate heirs would pay on inherited traditional IRA/401(k)
+   * distributions under the SECURE Act 10-year rule. Default 0.24 is a reasonable middle-aged
+   * non-spouse beneficiary estimate; set to 0 to score ending wealth at face value.
+   */
+  heirMarginalTaxRate: z.number().min(0).max(0.6).default(0.24),
 });
 export type Assumptions = z.infer<typeof AssumptionsSchema>;
 
@@ -136,6 +142,13 @@ export type YearResult = {
   cashShortfall: number;
   balancesEoy: AccountBalance[];
   netWorthEoy: number;
+  /**
+   * Ending net worth adjusted for the taxes heirs would owe on inherited assets:
+   *   - traditional IRA/401(k)/HSA: taxable portion (balance − basis) × heir marginal rate is subtracted
+   *   - Roth: passes tax-free (no adjustment)
+   *   - taxable brokerage: stepped-up basis on inheritance wipes unrealized gains (no adjustment)
+   */
+  heirNetWorthEoy: number;
 };
 
 export type StrategyResult = {
@@ -145,6 +158,8 @@ export type StrategyResult = {
   lifetimeAfterTax: number;
   lifetimeTax: number;
   endingNetWorth: number;
+  /** After-heir-tax ending net worth: what your heirs actually get to keep. */
+  endingHeirNetWorth: number;
   anyShortfall: boolean;
   /** Plain-English actions the user would take to implement this strategy. */
   actions: string[];
