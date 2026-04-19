@@ -33,10 +33,23 @@ export function IncomeStep() {
   return (
     <div className="panel">
       <h2>Income streams (outside SS)</h2>
+
+      <div className="income-row table-header">
+        <div>Label</div>
+        <div>Kind</div>
+        <div>Annual $</div>
+        <div>Start year</div>
+        <div>End year</div>
+        <div></div>
+      </div>
+
       {scenario.incomeStreams.map((s) => (
         <div className="income-row" key={s.id}>
           <input value={s.label} onChange={(e) => updateStream(s.id, { label: e.target.value })} />
-          <select value={s.kind} onChange={(e) => updateStream(s.id, { kind: e.target.value as IncomeStream['kind'] })}>
+          <select
+            value={s.kind}
+            onChange={(e) => updateStream(s.id, { kind: e.target.value as IncomeStream['kind'] })}
+          >
             <option value="salary">salary</option>
             <option value="pension">pension</option>
             <option value="rental">rental</option>
@@ -55,7 +68,7 @@ export function IncomeStep() {
           <input
             type="number"
             value={s.endYear ?? ''}
-            placeholder="end yr"
+            placeholder="—"
             onChange={(e) =>
               updateStream(s.id, { endYear: e.target.value === '' ? undefined : Number(e.target.value) })
             }
@@ -69,7 +82,7 @@ export function IncomeStep() {
         + Add income stream
       </button>
       <div style={{ marginTop: 8, fontSize: 12, color: 'var(--text-dim)' }}>
-        Social Security is entered per-person on the Household step.
+        Social Security is entered per-person on the Household step. End year can be left blank for indefinite streams.
       </div>
     </div>
   );

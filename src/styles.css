@@ -188,12 +188,28 @@ table.year-table {
 .muted { color: var(--text-dim); }
 .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
 
-.account-row, .income-row {
+.account-row {
   display: grid;
-  grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr auto;
+  grid-template-columns: 1.1fr 1.3fr 1.6fr 1fr 1fr 0.9fr 40px;
   gap: 8px;
   margin-bottom: 8px;
   align-items: center;
 }
+.income-row {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1fr 0.8fr 0.8fr 40px;
+  gap: 8px;
+  margin-bottom: 8px;
+  align-items: center;
+}
+.table-header {
+  font-size: 11px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+.table-header > div { padding: 0 2px; }
 .btn-sm { padding: 4px 8px; font-size: 12px; }
 .btn-danger { border-color: var(--bad); color: var(--bad); }

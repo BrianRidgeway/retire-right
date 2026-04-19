@@ -53,10 +53,11 @@ export function buildAiPrompt(scenario: Scenario, strategies: StrategyResult[]):
       lines.push(`- Lifetime tax paid: $${fmt(r.lifetimeTax)}`);
       lines.push(`- Ending net worth (age ${h.planEndAge}): $${fmt(r.endingNetWorth)}`);
       lines.push(`- Shortfall any year: ${r.anyShortfall ? 'YES' : 'no'}`);
-      if (Object.keys(r.strategy.rothConversions).length > 0) {
-        const totalConv = Object.values(r.strategy.rothConversions).reduce((x, v) => x + v, 0);
-        lines.push(`- Total Roth conversions: $${fmt(totalConv)} across ${Object.keys(r.strategy.rothConversions).length} years`);
+      if (r.actions.length > 0) {
+        lines.push(`- Actions:`);
+        for (const a of r.actions) lines.push(`  - ${a.replace(/^\s+•\s*/, '')}`);
       }
+      if (r.rationale) lines.push(`- Rationale: ${r.rationale}`);
       if (r.pros.length) lines.push(`- Pros: ${r.pros.join(' ')}`);
       if (r.cons.length) lines.push(`- Cons: ${r.cons.join(' ')}`);
     }

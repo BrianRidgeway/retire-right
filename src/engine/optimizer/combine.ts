@@ -4,6 +4,7 @@ import { baselineScenario, scoreResults } from './score';
 import { optimizeRothLadder } from './rothLadder';
 import { optimizeSsClaim } from './ssClaim';
 import { optimizeWithdrawOrder } from './withdrawOrder';
+import { describeActions, describeRationale } from './explain';
 
 /**
  * Coordinate-descent: optimize SS claim age, then withdrawal policy, then Roth ladder.
@@ -51,10 +52,12 @@ export function runOptimizer(scenario: Scenario): StrategyResult[] {
 
   const all = [baseline, fullyOptimized, rothHeavy, delaySsResult];
 
-  // Annotate with pros/cons vs baseline
   for (const r of all) {
     r.pros = [];
     r.cons = [];
+    r.actions = describeActions(scenario, r.strategy);
+    r.rationale = describeRationale(r, baseline);
+
     if (r === baseline) {
       r.pros.push('No action required — simplest possible plan.');
       continue;
@@ -100,6 +103,8 @@ function evaluate(scenario: Scenario): StrategyResult {
     lifetimeTax: score.lifetimeTax,
     endingNetWorth: score.endingNetWorth,
     anyShortfall: score.anyShortfall,
+    actions: [],
+    rationale: '',
     pros: [],
     cons: [],
   };

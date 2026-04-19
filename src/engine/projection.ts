@@ -90,11 +90,13 @@ export function runScenario(scenario: Scenario): YearResult[] {
       });
     }
 
-    // --- Strategy: Roth conversion this year ---
+    // --- Strategy: Roth conversion this year (pro-rata per IRC §72 if basis exists) ---
     const plannedConversion = strategy.rothConversions[String(year)] ?? 0;
-    const rothConversion = plannedConversion > 0
+    const convResult = plannedConversion > 0
       ? convertTraditionalToRoth(accountStates, household.primary.id, plannedConversion)
-      : 0;
+      : { converted: 0, taxable: 0, basisTransferred: 0 };
+    const rothConversion = convResult.converted;
+    const rothConversionTaxable = convResult.taxable;
 
     // --- Force RMD withdrawal (goes out as taxable distribution) ---
     const traditionalAccs = accountStates.filter((a) => isTraditional(a.type));
@@ -115,7 +117,7 @@ export function runScenario(scenario: Scenario): YearResult[] {
     const incomeCashInHand = wages + pensionTaxable + ssGross + rentalOther + rmdTaken.withdrawn;
 
     const iterations = 3;
-    let extraOrdinaryTaxable = rothConversion; // conversion adds to ordinary income
+    let extraOrdinaryTaxable = rothConversionTaxable; // only the pre-tax portion of the conversion is taxable
     let extraLtcgTaxable = 0;
     let extraWithdrawalCash = 0;
     let federalTax = 0;
@@ -148,7 +150,7 @@ export function runScenario(scenario: Scenario): YearResult[] {
       withdrawalsTaxable = 0;
       taxableCapitalGains = 0;
       extraLtcgTaxable = 0;
-      extraOrdinaryTaxable = rothConversion;
+      extraOrdinaryTaxable = rothConversionTaxable;
 
       // Previous-iter tax estimate (0 on first pass)
       const taxEstimate = iter === 0 ? 0 : federalTax + stateTax + niitTax + irmaaAnnual;
@@ -157,14 +159,16 @@ export function runScenario(scenario: Scenario): YearResult[] {
         baseSpending + oneOffs + healthcarePre65 + taxEstimate - incomeCashInHand,
       );
 
-      // Withdraw extra from accounts using the policy (exclude RMD accounts? No, they've already had RMD pulled; remaining traditional is fine).
+      // Withdraw extra from accounts using the policy.
       const order = buildWithdrawalOrder(accountStates, strategy.withdrawalPolicy);
       const withdrawal = withdrawFromAccounts(accountStates, order, targetGap);
       extraWithdrawalCash = withdrawal.withdrawn;
+      let withdrawalsTraditionalTaxable = 0;
       for (const p of withdrawal.perAccount) {
         const acc = accountStates.find((a) => a.id === p.id)!;
         if (isTraditional(acc.type) || acc.type === 'hsa') {
           withdrawalsTraditional += p.amount;
+          withdrawalsTraditionalTaxable += p.ordinaryTaxable;
         } else if (isRoth(acc.type)) {
           withdrawalsRoth += p.amount;
         } else if (acc.type === 'taxable') {
@@ -172,12 +176,14 @@ export function runScenario(scenario: Scenario): YearResult[] {
           taxableCapitalGains += p.ltcgTaxable;
         }
       }
-      extraOrdinaryTaxable += withdrawalsTraditional;
+      // Only the taxable (non-basis) portion of traditional withdrawals counts as income.
+      extraOrdinaryTaxable += withdrawalsTraditionalTaxable;
       extraLtcgTaxable += taxableCapitalGains;
 
       // --- Compute SS taxability ---
+      // RMD taxability follows pro-rata on the source account; use ordinaryTaxable not gross.
       const preTaxOrdinary =
-        wages + pensionTaxable + rentalOther + rmdTaken.withdrawn + extraOrdinaryTaxable;
+        wages + pensionTaxable + rentalOther + rmdTaken.ordinaryTaxable + extraOrdinaryTaxable;
       ssTaxable = computeSocialSecurityTaxable({
         status,
         ssBenefits: ssGross,
@@ -209,7 +215,9 @@ export function runScenario(scenario: Scenario): YearResult[] {
         pension: pensionTaxable,
         rentalOther,
         socialSecurityGross: ssGross,
-        retirementDistributions: rmdTaken.withdrawn + rothConversion + withdrawalsTraditional,
+        // State tax follows federal on what's taxable from traditional accounts —
+        // pass only the pre-tax (non-basis) portion.
+        retirementDistributions: rmdTaken.ordinaryTaxable + rothConversionTaxable + withdrawalsTraditionalTaxable,
         taxableCapitalGains: extraLtcgTaxable,
         interestAndDividends: 0,
         primaryAgeAtLeast595: primaryAge >= 59.5,

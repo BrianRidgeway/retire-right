@@ -146,6 +146,10 @@ export type StrategyResult = {
   lifetimeTax: number;
   endingNetWorth: number;
   anyShortfall: boolean;
+  /** Plain-English actions the user would take to implement this strategy. */
+  actions: string[];
+  /** Why this strategy is proposed — the economic logic behind it. */
+  rationale: string;
   pros: string[];
   cons: string[];
 };
