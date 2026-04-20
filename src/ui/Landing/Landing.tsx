@@ -9,7 +9,7 @@ export function Landing({ onLaunch }: { onLaunch: () => void }) {
         <nav className="landing-nav-links">
           <a href="#features">Features</a>
           <a href="#faq">FAQ</a>
-          <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">GitHub</a>
+          <a href="https://github.com/BrianRidgeway/retire-right" target="_blank" rel="noopener noreferrer">GitHub</a>
           <button className="primary" onClick={onLaunch}>
             Launch planner →
           </button>
@@ -134,7 +134,7 @@ export function Landing({ onLaunch }: { onLaunch: () => void }) {
             </a>{' '}
             supports ongoing work (annual tax-table updates, more states, Monte Carlo). The
             source is on{' '}
-            <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">
+            <a href="https://github.com/BrianRidgeway/retire-right" target="_blank" rel="noopener noreferrer">
               GitHub
             </a>{' '}
             if you want to audit the math or contribute.
@@ -151,7 +151,7 @@ export function Landing({ onLaunch }: { onLaunch: () => void }) {
             <a href={BMC_URL} target="_blank" rel="noopener noreferrer">
               ☕ Buy me a coffee
             </a>
-            <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">
+            <a href="https://github.com/BrianRidgeway/retire-right" target="_blank" rel="noopener noreferrer">
               GitHub
             </a>
             <button className="landing-linklike" onClick={onLaunch}>
