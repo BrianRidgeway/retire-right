@@ -86,7 +86,7 @@ Issues and pull requests welcome. Things that would be immediately useful:
 - Monte Carlo simulation layer on top of the existing deterministic engine.
 - Additional rules: QCDs, mega-backdoor Roth, ACA premium tax credit modeling.
 
-License: TBD. The author is still deciding - MIT, Apache 2.0, or AGPL-3.0 are the candidates. Until a LICENSE file exists, the code is viewable but not licensed for redistribution.
+Licensed under the [MIT License](./LICENSE).
 
 ## Support
 
