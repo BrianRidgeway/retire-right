@@ -1,5 +1,50 @@
 import { Scenario } from '../types';
 
+/**
+ * Blank slate — minimal valid scenario with no accounts, no income, zero spending.
+ * Use for the "Clear all data" action; the wizard can be filled in from there.
+ */
+export function makeBlankScenario(): Scenario {
+  const thisYear = new Date().getFullYear();
+  return {
+    schemaVersion: 1,
+    startYear: thisYear,
+    household: {
+      filingStatus: 'single',
+      primary: {
+        id: 'primary',
+        name: '',
+        birthYear: thisYear - 50,
+        state: 'CA',
+        ssBenefitAt67: 0,
+        ssClaimAge: 67,
+      },
+      planEndAge: 95,
+    },
+    accounts: [],
+    incomeStreams: [],
+    spending: {
+      baseAnnual: 0,
+      inflation: 0.025,
+      healthcarePre65Annual: 0,
+      oneOffs: [],
+    },
+    assumptions: {
+      inflation: 0.025,
+      discountRate: 0.03,
+      taxLawMode: 'current-law',
+      indexTablesToInflation: true,
+      heirMarginalTaxRate: 0.24,
+    },
+    strategy: {
+      rothConversions: {},
+      withdrawalPolicy: 'conventional',
+      ssClaimAges: {},
+      label: 'Current plan',
+    },
+  };
+}
+
 export function makeDefaultScenario(): Scenario {
   const thisYear = new Date().getFullYear();
   return {

@@ -5,6 +5,7 @@ import { StrategyCompare } from './ui/StrategyCompare/StrategyCompare';
 import { ExportPromptModal } from './ui/ExportPromptModal/ExportPromptModal';
 import { useScenarioStore } from './state/scenarioStore';
 import { downloadScenarioJson, pickAndLoadScenarioJson } from './persistence/save';
+import { makeBlankScenario } from './state/defaults';
 
 type Tab = 'inputs' | 'results' | 'strategies';
 
@@ -23,6 +24,16 @@ export function App() {
     }
   };
 
+  const handleClear = () => {
+    const confirmed = window.confirm(
+      'Clear all data? This resets every account, income stream, spending amount, and strategy to blank. Consider saving your current plan first (Save JSON). This cannot be undone.',
+    );
+    if (confirmed) {
+      loadScenario(makeBlankScenario());
+      setTab('inputs');
+    }
+  };
+
   return (
     <div className="app">
       <div className="app-header">
@@ -34,6 +45,9 @@ export function App() {
           <button onClick={handleLoad}>Load JSON…</button>
           <button onClick={() => downloadScenarioJson(scenario)}>Save JSON</button>
           <button onClick={() => setExportOpen(true)}>Export AI prompt…</button>
+          <button className="btn-danger" onClick={handleClear} title="Reset every field to blank">
+            Clear all data
+          </button>
         </div>
       </div>
 
