@@ -1,152 +1,102 @@
-# Deploying to EC2 at retireright.app
+# Deploying Retire Right
 
-Target: Ubuntu 22.04 / 24.04, Caddy web server, HTTPS via Let's Encrypt, served at `https://retireright.app/`.
+Primary target: **Cloudflare Pages** at `https://retireright.app/`. Pages is free for personal projects, serves from a global CDN, handles TLS automatically, and rebuilds on every git push (if you use the GitHub integration).
 
-## 0. Prerequisites
+Two paths below — pick one:
 
-- An EC2 instance running Ubuntu 22.04 or 24.04.
-- A DNS A record (and optional AAAA) pointing `retireright.app` (and `www.retireright.app`) to the instance's public IP.
-- Security group inbound rules: TCP 22 (your IP only), 80, 443 (0.0.0.0/0).
-- SSH access as a user with sudo. Examples below use `ubuntu@retireright.app`; replace with your actual user if different.
+- **Path A: GitHub + Pages git integration** (recommended once the repo exists — zero-touch auto-deploys)
+- **Path B: Direct upload via `wrangler`** (works today without a repo)
 
-## 1. Build locally
+Both require Cloudflare managing DNS for `retireright.app`. That's in section 0.
+
+## 0. Move DNS to Cloudflare (one-time)
+
+1. Sign in to Cloudflare → **Websites → Add a site** → enter `retireright.app`.
+2. Pick the Free plan.
+3. Cloudflare will import whatever A / MX / TXT records it can see and give you two nameservers like `foo.ns.cloudflare.com`, `bar.ns.cloudflare.com`.
+4. At your domain registrar (where you bought `retireright.app`), replace the existing nameservers with those two. Save. Propagation typically 5 min–24 hr.
+5. Once Cloudflare shows the zone as "Active," proceed.
+
+## Path A: GitHub + Cloudflare Pages
+
+**One-time setup:**
+
+1. Push this repo to GitHub:
+   ```bash
+   gh repo create retire-right --public --source=. --remote=origin --push
+   ```
+   (or create the repo manually and `git push -u origin main`).
+2. Cloudflare dashboard → **Workers & Pages → Create → Pages → Connect to Git**.
+3. Select the `retire-right` repo.
+4. Build settings:
+   - Framework preset: **None** (Vite is not in the preset list, but the manual settings below work)
+   - Build command: `npm run build:deploy`
+   - Build output directory: `dist`
+   - Node version: `20` or later (set under **Variables → Environment variables** as `NODE_VERSION=20`)
+5. Save and deploy. First deploy gives you a `*.pages.dev` URL.
+
+**Attach the custom domain:**
+
+6. In the Pages project → **Custom domains → Set up a custom domain** → `retireright.app`. Cloudflare creates the DNS records automatically. Add `www.retireright.app` the same way if you want both.
+7. Cloudflare provisions a cert. A minute later, `https://retireright.app/` is live.
+
+**Future deploys:** push to `main`. Pages builds and deploys automatically within ~60 seconds.
+
+## Path B: Direct upload via `wrangler`
+
+Use this before you have a GitHub repo, or for one-off deploys.
+
+**One-time setup:**
+
+1. Log in to Cloudflare via wrangler (opens a browser):
+   ```bash
+   npx wrangler login
+   ```
+2. Create the Pages project (first deploy does this implicitly, but you can also create it in the dashboard):
+   ```bash
+   npx wrangler pages project create retire-right --production-branch=main
+   ```
+3. Attach the custom domain in the dashboard → Pages project → **Custom domains** → add `retireright.app`.
+
+**Deploy:**
 
 ```bash
-npm ci
-npm run build:deploy
+npm run deploy
 ```
 
-`build:deploy` sets Vite's `--base=/` so assets resolve from the domain root. Output lands in `dist/`.
+That runs `build:deploy` then `wrangler pages deploy dist --project-name=retire-right`. First deploy prints the `*.pages.dev` URL; subsequent deploys overwrite production within seconds.
 
-Sanity check — `dist/index.html` should reference `/assets/...` (not `./assets/...` or `/retirement-planning/assets/...`):
+## Cache and security headers
 
-```bash
-grep 'assets/index' dist/index.html
-```
+`public/_headers` is served by Pages verbatim. It sets:
 
-## 2. Push `dist/` to the EC2 instance
+- `Cache-Control: public, max-age=31536000, immutable` on `/assets/*` — safe because Vite emits fingerprinted filenames per build.
+- `Cache-Control: no-cache, must-revalidate` on `/` and `/index.html` — deploys appear on the next page load.
+- Hourly cache on `/robots.txt`, `/sitemap.xml`, `/llms.txt`.
+- `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy` applied site-wide.
 
-Run locally:
+Edit `public/_headers` and redeploy to change cache or security policy. No Cloudflare dashboard toggles needed.
 
-```bash
-rsync -av --delete dist/ ubuntu@retireright.app:/tmp/retire-right/
-```
-
-Then on the EC2:
+## Verify
 
 ```bash
-ssh ubuntu@retireright.app
-sudo mkdir -p /var/www/retire-right
-sudo rsync -av --delete /tmp/retire-right/ /var/www/retire-right/
-sudo chown -R caddy:caddy /var/www/retire-right
-```
-
-## 3. Install Caddy (one-time)
-
-If Caddy isn't already installed, use the official binary (reliable, no third-party apt repo):
-
-```bash
-CADDY_VER=2.8.4
-curl -L -o /tmp/caddy.tar.gz "https://github.com/caddyserver/caddy/releases/download/v${CADDY_VER}/caddy_${CADDY_VER}_linux_amd64.tar.gz"
-tar -xzf /tmp/caddy.tar.gz -C /tmp caddy
-sudo install -m 755 /tmp/caddy /usr/local/bin/caddy
-caddy version
-
-sudo useradd --system --home /var/lib/caddy --create-home --shell /usr/sbin/nologin caddy
-
-sudo mkdir -p /etc/caddy
-sudo tee /etc/systemd/system/caddy.service >/dev/null <<'EOF'
-[Unit]
-Description=Caddy
-After=network.target
-
-[Service]
-User=caddy
-Group=caddy
-ExecStart=/usr/local/bin/caddy run --environ --config /etc/caddy/Caddyfile
-ExecReload=/usr/local/bin/caddy reload --config /etc/caddy/Caddyfile
-AmbientCapabilities=CAP_NET_BIND_SERVICE
-Restart=on-failure
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-sudo systemctl daemon-reload
-sudo systemctl enable caddy
-```
-
-If Apache is installed and squatting on port 80, stop it first:
-
-```bash
-sudo systemctl stop apache2 && sudo systemctl disable apache2
-```
-
-## 4. Configure Caddy
-
-```bash
-sudo tee /etc/caddy/Caddyfile >/dev/null <<'EOF'
-retireright.app, www.retireright.app {
-    encode zstd gzip
-    root * /var/www/retire-right
-    file_server
-
-    # Correct content-types for SEO crawl files.
-    @crawl path /robots.txt /sitemap.xml /llms.txt
-    header @crawl Cache-Control "public, max-age=3600"
-
-    # Long cache on fingerprinted assets.
-    @assets path /assets/*
-    header @assets Cache-Control "public, max-age=31536000, immutable"
-
-    # No cache on index.html so deploys take effect immediately.
-    @html path /index.html /
-    header @html Cache-Control "no-cache"
-}
-
-# Redirect apex <-> www if you prefer one canonical form. Pick one and uncomment:
-# www.retireright.app {
-#   redir https://retireright.app{uri} permanent
-# }
-EOF
-
-sudo caddy validate --config /etc/caddy/Caddyfile
-sudo systemctl start caddy
-sudo systemctl status caddy --no-pager
-```
-
-First request takes a few seconds while Caddy provisions the Let's Encrypt certificate. Watch live:
-
-```bash
-sudo journalctl -u caddy -f
-```
-
-## 5. Verify
-
-```bash
-curl -sI https://retireright.app/ | head -5
+curl -sI https://retireright.app/ | head -8
 curl -s https://retireright.app/robots.txt
-curl -s https://retireright.app/sitemap.xml
-curl -s https://retireright.app/llms.txt
+curl -s https://retireright.app/llms.txt | head -5
 ```
 
-All should return 200 (or a proper response). Then open `https://retireright.app/` in a browser. You should land on the marketing page; clicking "Launch planner" takes you to `#app` and boots the SPA.
+Expect `HTTP/2 200`, `content-type: text/html`, and `cf-ray` / `server: cloudflare` response headers. Open the site in a browser — you should land on the marketing page; clicking "Launch planner" navigates to `/#app` and boots the SPA.
 
-## 6. Future deploys
+## SEO follow-ups (one-time)
 
-```bash
-# local
-npm run build:deploy
-rsync -av --delete dist/ ubuntu@retireright.app:/tmp/retire-right/
+- **Google Search Console** → Add property → `https://retireright.app/` → verify via the DNS TXT record (Cloudflare makes this trivial) → submit `https://retireright.app/sitemap.xml`.
+- **Bing Webmaster Tools** → same flow.
+- **IndexNow** (optional): Cloudflare has a one-click IndexNow integration that pings search engines on every deploy.
 
-# on the server
-ssh ubuntu@retireright.app 'sudo rsync -av --delete /tmp/retire-right/ /var/www/retire-right/ && sudo chown -R caddy:caddy /var/www/retire-right'
-```
+## Appendix: the old EC2 + Caddy path
 
-No Caddy reload needed — it serves the new files on the next request.
+The earlier EC2/Caddy setup still works and is documented in git history (commit `91542e8` and before). Once Cloudflare Pages is serving the domain, you can either keep EC2 running for something else or stop the instance. If you ever want to move back, see the git history for the Caddyfile and systemd unit.
 
-## Notes
+## Privacy guarantee still holds
 
-- **SEO.** `/robots.txt`, `/sitemap.xml`, and `/llms.txt` are served as static files. Submit the sitemap in Google Search Console once DNS propagates.
-- **Privacy guarantee.** Server only delivers static JS/CSS/HTML/JSON. All planning math runs client-side after the page loads. No backend required.
-- **Fingerprinted assets.** Vite emits hashed filenames (e.g. `index-abc123.js`), so long `Cache-Control` is safe — new deploys produce new filenames and `index.html` (with `no-cache`) picks them up on the next page load.
+Cloudflare Pages only serves static JS/CSS/HTML/JSON. No server-side code runs, no user data is received or stored. All planning calculations happen in the visitor's browser after the page loads, just as before. The trade-off vs self-hosted: Cloudflare sees request logs (IP, user-agent, path) as it proxies the CDN — standard for any CDN-fronted site. Pages does not inject analytics or tracking.

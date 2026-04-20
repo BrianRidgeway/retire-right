@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "build:deploy": "tsc -b && vite build --base=/",
+    "deploy": "npm run build:deploy && wrangler pages deploy dist --project-name=retire-right",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest"
@@ -26,6 +27,7 @@
     "jsdom": "^25.0.1",
     "typescript": "^5.6.3",
     "vite": "^5.4.10",
-    "vitest": "^2.1.4"
+    "vitest": "^2.1.4",
+    "wrangler": "^3.114.17"
   }
 }

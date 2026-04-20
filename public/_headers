@@ -1,0 +1,26 @@
+# Cloudflare Pages applies these headers to matching paths.
+
+# Vite emits fingerprinted asset filenames (index-abc123.js). Safe to cache forever —
+# a new deploy produces new filenames and index.html (no-cache below) picks them up.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# HTML must not be cached so deploys take effect on the next page load.
+/
+  Cache-Control: no-cache, must-revalidate
+/index.html
+  Cache-Control: no-cache, must-revalidate
+
+# Crawler files: let search engines re-fetch hourly.
+/robots.txt
+  Cache-Control: public, max-age=3600
+/sitemap.xml
+  Cache-Control: public, max-age=3600
+/llms.txt
+  Cache-Control: public, max-age=3600
+
+# Security headers that are cheap wins for a static SPA.
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), microphone=(), camera=()
