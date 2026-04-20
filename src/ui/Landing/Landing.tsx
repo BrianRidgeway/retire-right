@@ -1,5 +1,5 @@
 const BMC_URL = 'https://www.buymeacoffee.com/retireright';
-const GITHUB_URL = 'https://github.com/brianjridgeway/retire-right';
+const GITHUB_URL = 'https://github.com/BrianRidgeway/retire-right';
 
 export function Landing({ onLaunch }: { onLaunch: () => void }) {
   return (
@@ -9,7 +9,7 @@ export function Landing({ onLaunch }: { onLaunch: () => void }) {
         <nav className="landing-nav-links">
           <a href="#features">Features</a>
           <a href="#faq">FAQ</a>
-          <a href="https://github.com/BrianRidgeway/retire-right" target="_blank" rel="noopener noreferrer">GitHub</a>
+          <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">GitHub</a>
           <button className="primary" onClick={onLaunch}>
             Launch planner →
           </button>
@@ -18,12 +18,12 @@ export function Landing({ onLaunch }: { onLaunch: () => void }) {
 
       <section className="landing-hero">
         <h1>
-          Plan retirement the way a <span className="accent">fee-only planner</span> would —
+          Plan retirement the way a <span className="accent">fee-only planner</span> would -
           without sharing your data.
         </h1>
         <p className="landing-sub">
           Retire Right models Roth conversions, RMDs, Medicare IRMAA surcharges, Social Security
-          timing, federal and state tax, and heir-tax impact — all in your browser. Nothing leaves
+          timing, federal and state tax, and heir-tax impact - all in your browser. Nothing leaves
           your computer. Free forever.
         </p>
         <div className="landing-cta">
@@ -80,11 +80,11 @@ export function Landing({ onLaunch }: { onLaunch: () => void }) {
           />
           <Feature
             title="Plain-English actions"
-            body="Every suggested strategy lists the specific dollar amounts to convert, the ages to claim SS, and the reasoning. Not just numbers — a plan."
+            body="Every suggested strategy lists the specific dollar amounts to convert, the ages to claim SS, and the reasoning. Not just numbers - a plan."
           />
           <Feature
             title="AI-prompt export"
-            body="One click to generate a Markdown summary of your scenario and strategies. Paste into ChatGPT, Claude, or Gemini for a second opinion — your choice, your data."
+            body="One click to generate a Markdown summary of your scenario and strategies. Paste into ChatGPT, Claude, or Gemini for a second opinion - your choice, your data."
           />
         </div>
       </section>
@@ -95,7 +95,7 @@ export function Landing({ onLaunch }: { onLaunch: () => void }) {
         <Faq q="Is my data really private?">
           Yes. Retire Right is a static single-page app. All computation runs in your browser.
           Save/Load JSON reads and writes files on your own machine. The only way your data
-          leaves is if you copy the AI-prompt export into a third-party chat tool — and that's
+          leaves is if you copy the AI-prompt export into a third-party chat tool - and that's
           your choice, with a warning before you paste.
         </Faq>
         <Faq q="What does the Roth conversion optimizer actually do?">
@@ -106,7 +106,7 @@ export function Landing({ onLaunch }: { onLaunch: () => void }) {
         </Faq>
         <Faq q="Which states are supported?">
           California, New York, Pennsylvania, Maryland (with ~3% county local tax), and no-tax
-          states (Florida, Texas, Washington). The state-tax engine is pluggable — more states
+          states (Florida, Texas, Washington). The state-tax engine is pluggable - more states
           can be added by editing a single JSON table.
         </Faq>
         <Faq q="How does it handle IRMAA?">
@@ -117,7 +117,7 @@ export function Landing({ onLaunch }: { onLaunch: () => void }) {
         </Faq>
         <Faq q="What about Monte Carlo / sequence-of-returns risk?">
           Not yet. The current engine is deterministic with fixed return assumptions. That's a
-          deliberate MVP choice — it makes Roth conversion and IRMAA strategy explainable and
+          deliberate MVP choice - it makes Roth conversion and IRMAA strategy explainable and
           reproducible. Monte Carlo is a planned feature.
         </Faq>
         <Faq q="Is this financial advice?">
@@ -128,13 +128,13 @@ export function Landing({ onLaunch }: { onLaunch: () => void }) {
         </Faq>
         <Faq q="Can I support the project?">
           <>
-            Yes — and thank you.{' '}
+            Yes - and thank you.{' '}
             <a href={BMC_URL} target="_blank" rel="noopener noreferrer">
               Buy me a coffee
             </a>{' '}
             supports ongoing work (annual tax-table updates, more states, Monte Carlo). The
             source is on{' '}
-            <a href="https://github.com/BrianRidgeway/retire-right" target="_blank" rel="noopener noreferrer">
+            <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">
               GitHub
             </a>{' '}
             if you want to audit the math or contribute.
@@ -151,7 +151,7 @@ export function Landing({ onLaunch }: { onLaunch: () => void }) {
             <a href={BMC_URL} target="_blank" rel="noopener noreferrer">
               ☕ Buy me a coffee
             </a>
-            <a href="https://github.com/BrianRidgeway/retire-right" target="_blank" rel="noopener noreferrer">
+            <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">
               GitHub
             </a>
             <button className="landing-linklike" onClick={onLaunch}>

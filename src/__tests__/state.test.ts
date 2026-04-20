@@ -102,7 +102,7 @@ describe('PA retirement exempt at 59.5+', () => {
     });
     expect(r.tax).toBe(0);
   });
-  it('still exempt when ostensibly early (simplification — we do not model early-withdrawal penalty)', () => {
+  it('still exempt when ostensibly early (simplification - we do not model early-withdrawal penalty)', () => {
     // PA technically taxes early withdrawals, but this engine targets retirement-age users.
     const r = computeStateTax({
       ...base(),

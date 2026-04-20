@@ -1,6 +1,6 @@
 # Retire Right
 
-> Free, privacy-first retirement planning calculator. Models Roth conversions, RMDs, Medicare IRMAA surcharges, Social Security timing, federal + state income tax, NIIT, and after-heir-tax estate value. Runs entirely in the browser — no data is sent to a server.
+> Free, privacy-first retirement planning calculator. Models Roth conversions, RMDs, Medicare IRMAA surcharges, Social Security timing, federal + state income tax, NIIT, and after-heir-tax estate value. Runs entirely in the browser - no data is sent to a server.
 
 ## What it does
 

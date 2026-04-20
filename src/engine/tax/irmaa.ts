@@ -34,7 +34,7 @@ export function computeIrmaaTier(magi: number, status: StatusKey): IrmaaResult {
 }
 
 /**
- * IRMAA thresholds (bottom of tier N) — useful for the optimizer to target conversion ceilings.
+ * IRMAA thresholds (bottom of tier N) - useful for the optimizer to target conversion ceilings.
  */
 export function irmaaTierCeilings(status: StatusKey): number[] {
   return IRMAA.tiers[status]

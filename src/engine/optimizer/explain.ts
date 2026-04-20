@@ -57,7 +57,7 @@ export function describeActions(scenario: Scenario, strategy: Strategy): string[
   }
 
   if (actions.length === 0) {
-    actions.push('No changes vs your current plan — do nothing.');
+    actions.push('No changes vs your current plan - do nothing.');
   }
 
   return actions;
@@ -93,9 +93,9 @@ export function describeRationale(r: StrategyResult, baseline: StrategyResult): 
   if (label.toLowerCase().includes('roth ladder')) {
     return (
       `Converts traditional IRA dollars to Roth during low-income years before RMDs begin. ` +
-      `You pay ordinary income tax now — when your bracket is likely lower — in exchange for smaller mandatory RMDs later, ` +
+      `You pay ordinary income tax now - when your bracket is likely lower - in exchange for smaller mandatory RMDs later, ` +
       `a lower MAGI in Medicare years (avoiding IRMAA surcharges), tax-free growth on the converted dollars forever, ` +
-      `and — under the SECURE Act 10-year rule — a tax-free inheritance instead of forcing heirs to pay ordinary income tax on withdrawals.` +
+      `and - under the SECURE Act 10-year rule - a tax-free inheritance instead of forcing heirs to pay ordinary income tax on withdrawals.` +
       faceTail + heirTail
     );
   }
@@ -103,7 +103,7 @@ export function describeRationale(r: StrategyResult, baseline: StrategyResult): 
     return (
       `Each year you delay Social Security past Full Retirement Age (67) earns a guaranteed +8% on your benefit, ` +
       `which is then indexed to inflation for life. Break-even vs claiming at 67 is roughly age 82; if either spouse ` +
-      `lives past that, lifetime benefits are higher — and the higher benefit becomes the survivor benefit for whoever outlives the other.` +
+      `lives past that, lifetime benefits are higher - and the higher benefit becomes the survivor benefit for whoever outlives the other.` +
       faceTail + heirTail
     );
   }
@@ -117,7 +117,7 @@ export function describeRationale(r: StrategyResult, baseline: StrategyResult): 
     );
   }
   if (label.toLowerCase().includes('do nothing')) {
-    return `Keeps your current inputs exactly as entered — no Roth conversions, SS claim ages unchanged, withdrawal order is the default (taxable → traditional → Roth).`;
+    return `Keeps your current inputs exactly as entered - no Roth conversions, SS claim ages unchanged, withdrawal order is the default (taxable → traditional → Roth).`;
   }
   return `Custom strategy.` + faceTail + heirTail;
 }

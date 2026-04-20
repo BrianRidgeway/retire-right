@@ -33,7 +33,7 @@ export function ExportPromptModal({ onClose }: { onClose: () => void }) {
         </div>
         <div className="warning">
           Pasting this into a third-party AI (ChatGPT, Claude, Gemini, etc.) sends your scenario data to that
-          provider. Review before sending — remove anything you wouldn't want stored.
+          provider. Review before sending - remove anything you wouldn't want stored.
           {optimizerResults == null && (
             <>
               {' '}

@@ -80,7 +80,7 @@ export function computeStateTax(input: StateTaxInput): StateTaxOutput {
     stateTax = taxFromBrackets(taxableIncome, brackets);
   }
 
-  // Local (county/city) surcharge — flat rate on the state-taxable base. MD uses this for
+  // Local (county/city) surcharge - flat rate on the state-taxable base. MD uses this for
   // county income tax; most others are 0.
   const localSurcharge = cfg.localSurcharge ?? 0;
   const localTax = taxableIncome * localSurcharge;

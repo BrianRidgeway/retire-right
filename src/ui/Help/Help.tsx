@@ -49,13 +49,13 @@ export function Help() {
           </dd>
           <dt>Save JSON</dt>
           <dd>
-            Downloads your current scenario as a timestamped JSON file. Only your inputs are saved — results
+            Downloads your current scenario as a timestamped JSON file. Only your inputs are saved - results
             are recomputed every time.
           </dd>
           <dt>Export AI prompt…</dt>
           <dd>
             Builds a Markdown block containing your scenario and any strategy results. Copy and paste it into
-            ChatGPT, Claude, Gemini, etc. for a second opinion. Review before sending — pasting sends your
+            ChatGPT, Claude, Gemini, etc. for a second opinion. Review before sending - pasting sends your
             financial data to that provider.
           </dd>
           <dt>Clear all data</dt>
@@ -82,16 +82,16 @@ export function Help() {
           types:
         </p>
         <ul>
-          <li><strong>traditional-ira / traditional-401k</strong> — pre-tax retirement accounts. RMDs apply at the age set by SECURE 2.0 (73 or 75).</li>
-          <li><strong>roth-ira / roth-401k</strong> — after-tax retirement. No RMDs for the owner; withdrawals tax-free post-59½.</li>
-          <li><strong>taxable</strong> — regular brokerage. Withdrawals realize pro-rata long-term capital gain.</li>
-          <li><strong>hsa</strong> — modeled like traditional for tax purposes in this tool.</li>
+          <li><strong>traditional-ira / traditional-401k</strong> - pre-tax retirement accounts. RMDs apply at the age set by SECURE 2.0 (73 or 75).</li>
+          <li><strong>roth-ira / roth-401k</strong> - after-tax retirement. No RMDs for the owner; withdrawals tax-free post-59½.</li>
+          <li><strong>taxable</strong> - regular brokerage. Withdrawals realize pro-rata long-term capital gain.</li>
+          <li><strong>hsa</strong> - modeled like traditional for tax purposes in this tool.</li>
         </ul>
         <p>
           <strong>Basis</strong> (after-tax dollars inside the account):
         </p>
         <ul>
-          <li>Traditional IRA/401(k): non-deductible contributions tracked on Form 8606. Leave blank if all pre-tax — that's most people. If you made non-deductible contributions (common for high earners above the IRA deduction phase-out, or "backdoor Roth" practitioners), enter the cumulative basis. The pro-rata rule (IRC §72) applies on withdrawals and Roth conversions.</li>
+          <li>Traditional IRA/401(k): non-deductible contributions tracked on Form 8606. Leave blank if all pre-tax - that's most people. If you made non-deductible contributions (common for high earners above the IRA deduction phase-out, or "backdoor Roth" practitioners), enter the cumulative basis. The pro-rata rule (IRC §72) applies on withdrawals and Roth conversions.</li>
           <li>Taxable: cost basis. Leave blank to assume basis = balance (no unrealized gains).</li>
           <li>Roth: ignored.</li>
         </ul>
@@ -100,7 +100,7 @@ export function Help() {
         <p>
           Anything taxable that isn't Social Security: salary, pension, rental, other. Each stream has a start
           year and optional end year. COLA defaults to 2%. Social Security is entered per-person on the
-          Household step — don't add it here.
+          Household step - don't add it here.
         </p>
 
         <h3>Spending</h3>
@@ -113,7 +113,7 @@ export function Help() {
         <h3>Assumptions</h3>
         <p>
           <strong>Inflation</strong> drives both spending growth and (in future) tax-bracket indexing.
-          <strong> Discount rate</strong> is used by the optimizer's present-value score — a higher rate
+          <strong> Discount rate</strong> is used by the optimizer's present-value score - a higher rate
           weights near-term spending more heavily than distant ending wealth.
           <strong> Heir marginal tax rate</strong> estimates what your heirs would pay on inherited
           traditional IRA/401(k) withdrawals under the SECURE Act 10-year rule. Default 24% is typical for a
@@ -183,7 +183,7 @@ export function Help() {
           <dd>
             Income-Related Monthly Adjustment Amount. Surcharges on Medicare Part B and D premiums for
             higher-income filers. Six tiers. Kicks in at MAGI above $106k single / $212k MFJ in 2025 and
-            climbs steeply. Based on your tax return from <em>two years prior</em> — so 2025 premiums are
+            climbs steeply. Based on your tax return from <em>two years prior</em> - so 2025 premiums are
             driven by your 2023 MAGI.
           </dd>
           <dt>NIIT</dt>
@@ -209,7 +209,7 @@ export function Help() {
         <h2>What's <em>not</em> modeled</h2>
         <ul>
           <li>Monte Carlo / sequence-of-returns risk (deterministic projections only).</li>
-          <li>Most state income taxes — currently CA, NY, PA, MD, plus FL/TX/WA (no tax). Request more or add them to <code>src/tables/states-2025.json</code>.</li>
+          <li>Most state income taxes - currently CA, NY, PA, MD, plus FL/TX/WA (no tax). Request more or add them to <code>src/tables/states-2025.json</code>.</li>
           <li>Early-withdrawal penalty (10%) on retirement accounts before age 59½.</li>
           <li>Federal estate tax (exemption is ~$14M per person in 2025, rare).</li>
           <li>State inheritance tax.</li>
@@ -227,7 +227,7 @@ export function Help() {
           This is a planning tool, not tax preparation software or financial advice. The tax engine applies
           2025 federal rules and a simplified state model; state treatment in particular is approximated.
           Bracket indexing for future years uses constant CPI, which understates both bracket creep and
-          IRMAA tier drift. Life is also more complicated than any model — use the output as a starting
+          IRMAA tier drift. Life is also more complicated than any model - use the output as a starting
           point for conversations with a fee-only CFP or tax professional.
         </p>
       </div>

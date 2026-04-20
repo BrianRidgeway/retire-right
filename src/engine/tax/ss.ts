@@ -32,7 +32,7 @@ export function computeSocialSecurityTaxable(params: {
 }
 
 /**
- * Claim-age benefit adjustment relative to Full Retirement Age (assumed 67 for simplicity — correct for anyone born 1960+).
+ * Claim-age benefit adjustment relative to Full Retirement Age (assumed 67 for simplicity - correct for anyone born 1960+).
  * Early claim: reduction of 5/9% per month for first 36 months before FRA, then 5/12% for additional months.
  * Delayed claim: +8%/year (2/3%/month) up to age 70.
  * Returns a multiplier applied to the user-supplied FRA benefit.

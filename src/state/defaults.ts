@@ -1,7 +1,7 @@
 import { Scenario } from '../types';
 
 /**
- * Blank slate — minimal valid scenario with no accounts, no income, zero spending.
+ * Blank slate - minimal valid scenario with no accounts, no income, zero spending.
  * Use for the "Clear all data" action; the wizard can be filled in from there.
  */
 export function makeBlankScenario(): Scenario {

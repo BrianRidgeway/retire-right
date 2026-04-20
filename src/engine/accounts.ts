@@ -49,7 +49,7 @@ export function isRoth(type: AccountType): boolean {
 }
 
 /**
- * Grow an account by its expected return. Basis does NOT grow with market returns —
+ * Grow an account by its expected return. Basis does NOT grow with market returns -
  * that's the whole point of tracking it. For Roth we keep basis == balance purely
  * as a bookkeeping invariant (withdrawals don't touch basis for Roth).
  */
@@ -86,7 +86,7 @@ function proRataBasis(acc: AccountState, take: number): { basisPortion: number; 
 
 /**
  * Withdraw `target` in account dollars (not net-of-tax cash) from accounts in order.
- * Returns the realized tax breakdown — ordinary income from traditional/HSA, LTCG from taxable.
+ * Returns the realized tax breakdown - ordinary income from traditional/HSA, LTCG from taxable.
  */
 export function withdrawFromAccounts(
   _accounts: AccountState[],

@@ -11,7 +11,7 @@ export function ResultsDashboard() {
   if (results.length === 0) {
     return (
       <div className="panel">
-        <p>No results — fill in the inputs first.</p>
+        <p>No results - fill in the inputs first.</p>
       </div>
     );
   }
@@ -139,7 +139,7 @@ export function ResultsDashboard() {
                   <td>{fmt(r.rothConversion)}</td>
                   <td>{fmt(r.netWorthEoy)}</td>
                   <td className={r.cashShortfall > 0 ? 'err' : ''}>
-                    {r.cashShortfall > 0 ? fmt(r.cashShortfall) : '—'}
+                    {r.cashShortfall > 0 ? fmt(r.cashShortfall) : '-'}
                   </td>
                 </tr>
               ))}

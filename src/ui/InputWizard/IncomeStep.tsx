@@ -68,7 +68,7 @@ export function IncomeStep() {
           <input
             type="number"
             value={s.endYear ?? ''}
-            placeholder="—"
+            placeholder="-"
             onChange={(e) =>
               updateStream(s.id, { endYear: e.target.value === '' ? undefined : Number(e.target.value) })
             }

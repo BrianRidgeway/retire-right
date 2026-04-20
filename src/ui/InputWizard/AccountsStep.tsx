@@ -100,9 +100,9 @@ export function AccountsStep() {
       </button>
       <div style={{ marginTop: 12, fontSize: 12, color: 'var(--text-dim)', lineHeight: 1.5 }}>
         <div><strong>Basis</strong> (after-tax dollars inside the account):</div>
-        <div>· <strong>Traditional IRA / 401(k):</strong> non-deductible contributions per Form 8606. Leave blank if all pre-tax (most people). If you have non-deductible contributions, enter the cumulative basis — the pro-rata rule (IRC §72) is applied on withdrawals and Roth conversions.</div>
+        <div>· <strong>Traditional IRA / 401(k):</strong> non-deductible contributions per Form 8606. Leave blank if all pre-tax (most people). If you have non-deductible contributions, enter the cumulative basis - the pro-rata rule (IRC §72) is applied on withdrawals and Roth conversions.</div>
         <div>· <strong>Taxable brokerage:</strong> cost basis. If blank, we assume basis = balance (no unrealized gains).</div>
-        <div>· <strong>Roth:</strong> not used — withdrawals are fully tax-free (post-59½).</div>
+        <div>· <strong>Roth:</strong> not used - withdrawals are fully tax-free (post-59½).</div>
       </div>
     </div>
   );

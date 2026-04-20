@@ -216,7 +216,7 @@ export function runScenario(scenario: Scenario): YearResult[] {
         pension: pensionTaxable,
         rentalOther,
         socialSecurityGross: ssGross,
-        // State tax follows federal on what's taxable from traditional accounts —
+        // State tax follows federal on what's taxable from traditional accounts -
         // pass only the pre-tax (non-basis) portion.
         retirementDistributions: rmdTaken.ordinaryTaxable + rothConversionTaxable + withdrawalsTraditionalTaxable,
         taxableCapitalGains: extraLtcgTaxable,

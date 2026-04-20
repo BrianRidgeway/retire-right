@@ -59,7 +59,7 @@ export function runOptimizer(scenario: Scenario): StrategyResult[] {
     r.rationale = describeRationale(r, baseline);
 
     if (r === baseline) {
-      r.pros.push('No action required — simplest possible plan.');
+      r.pros.push('No action required - simplest possible plan.');
       continue;
     }
     const dAfterTax = r.lifetimeAfterTax - baseline.lifetimeAfterTax;

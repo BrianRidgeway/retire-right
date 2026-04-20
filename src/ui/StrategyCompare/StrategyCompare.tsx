@@ -51,12 +51,12 @@ export function StrategyCompare({ onApply }: { onApply?: () => void }) {
         <div className="muted" style={{ fontSize: 13, marginTop: 8 }}>
           Ranked by score (present value of lifetime spending covered + after-heir-tax ending wealth). Each card
           lists the specific actions to take and the reasoning. Click <strong>Apply</strong> to load the strategy
-          into your plan and jump to the Results tab to see the year-by-year effect — you can revert from there.
+          into your plan and jump to the Results tab to see the year-by-year effect - you can revert from there.
         </div>
       </div>
 
       <StrategySection
-        title="Baseline — your current plan"
+        title="Baseline - your current plan"
         strategies={[baseline]}
         baseline={baseline}
         currentStrategyLabel={currentStrategy.label}

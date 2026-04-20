@@ -8,7 +8,7 @@ import { AccountState, isRoth, isTraditional } from './accounts';
  *    heir as ordinary income over 10 years, taxed at their marginal rate. Basis (non-deductible
  *    contributions tracked on Form 8606) passes tax-free. For HSA specifically, non-spouse
  *    inheritance loses HSA status and the whole balance (less basis) becomes ordinary income
- *    in year of death — we use the same approximation.
+ *    in year of death - we use the same approximation.
  *  - Roth IRA / 401(k): passes tax-free (assumes 5-year rule met).
  *  - Taxable brokerage: step-up in basis at death wipes unrealized gains; heir can sell at
  *    FMV with no tax. Full balance passes.

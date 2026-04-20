@@ -2,9 +2,9 @@
 
 Primary target: **Cloudflare Pages** at `https://retireright.app/`. Pages is free for personal projects, serves from a global CDN, handles TLS automatically, and rebuilds on every git push (if you use the GitHub integration).
 
-Two paths below — pick one:
+Two paths below - pick one:
 
-- **Path A: GitHub + Pages git integration** (recommended once the repo exists — zero-touch auto-deploys)
+- **Path A: GitHub + Pages git integration** (recommended once the repo exists - zero-touch auto-deploys)
 - **Path B: Direct upload via `wrangler`** (works today without a repo)
 
 Both require Cloudflare managing DNS for `retireright.app`. That's in section 0.
@@ -70,8 +70,8 @@ That runs `build:deploy` then `wrangler pages deploy dist --project-name=retire-
 
 `public/_headers` is served by Pages verbatim. It sets:
 
-- `Cache-Control: public, max-age=31536000, immutable` on `/assets/*` — safe because Vite emits fingerprinted filenames per build.
-- `Cache-Control: no-cache, must-revalidate` on `/` and `/index.html` — deploys appear on the next page load.
+- `Cache-Control: public, max-age=31536000, immutable` on `/assets/*` - safe because Vite emits fingerprinted filenames per build.
+- `Cache-Control: no-cache, must-revalidate` on `/` and `/index.html` - deploys appear on the next page load.
 - Hourly cache on `/robots.txt`, `/sitemap.xml`, `/llms.txt`.
 - `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy` applied site-wide.
 
@@ -85,7 +85,7 @@ curl -s https://retireright.app/robots.txt
 curl -s https://retireright.app/llms.txt | head -5
 ```
 
-Expect `HTTP/2 200`, `content-type: text/html`, and `cf-ray` / `server: cloudflare` response headers. Open the site in a browser — you should land on the marketing page; clicking "Launch planner" navigates to `/#app` and boots the SPA.
+Expect `HTTP/2 200`, `content-type: text/html`, and `cf-ray` / `server: cloudflare` response headers. Open the site in a browser - you should land on the marketing page; clicking "Launch planner" navigates to `/#app` and boots the SPA.
 
 ## SEO follow-ups (one-time)
 
@@ -99,4 +99,4 @@ The earlier EC2/Caddy setup still works and is documented in git history (commit
 
 ## Privacy guarantee still holds
 
-Cloudflare Pages only serves static JS/CSS/HTML/JSON. No server-side code runs, no user data is received or stored. All planning calculations happen in the visitor's browser after the page loads, just as before. The trade-off vs self-hosted: Cloudflare sees request logs (IP, user-agent, path) as it proxies the CDN — standard for any CDN-fronted site. Pages does not inject analytics or tracking.
+Cloudflare Pages only serves static JS/CSS/HTML/JSON. No server-side code runs, no user data is received or stored. All planning calculations happen in the visitor's browser after the page loads, just as before. The trade-off vs self-hosted: Cloudflare sees request logs (IP, user-agent, path) as it proxies the CDN - standard for any CDN-fronted site. Pages does not inject analytics or tracking.
