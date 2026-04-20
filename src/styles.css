@@ -115,7 +115,7 @@ table.year-table {
 .year-table thead th { background: var(--panel-2); position: sticky; top: 0; font-weight: 600; }
 .year-table tbody tr:hover { background: var(--panel-2); }
 
-.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 16px; align-items: flex-end; }
 .tab {
   padding: 8px 14px;
   background: transparent;
@@ -213,3 +213,25 @@ table.year-table {
 .table-header > div { padding: 0 2px; }
 .btn-sm { padding: 4px 8px; font-size: 12px; }
 .btn-danger { border-color: var(--bad); color: var(--bad); }
+
+.help p { line-height: 1.6; }
+.help h2 { margin-top: 0; }
+.help h3 { margin-top: 16px; margin-bottom: 6px; font-size: 14px; color: var(--text); }
+.help ul, .help ol { line-height: 1.6; }
+.help code {
+  background: var(--panel-2);
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 12px;
+}
+.help-dl dt {
+  font-weight: 600;
+  color: var(--accent);
+  margin-top: 12px;
+  font-size: 13px;
+}
+.help-dl dd {
+  margin: 4px 0 0 0;
+  line-height: 1.6;
+  font-size: 13px;
+}

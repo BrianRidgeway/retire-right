@@ -3,11 +3,12 @@ import { InputWizard } from './ui/InputWizard/InputWizard';
 import { ResultsDashboard } from './ui/ResultsDashboard/ResultsDashboard';
 import { StrategyCompare } from './ui/StrategyCompare/StrategyCompare';
 import { ExportPromptModal } from './ui/ExportPromptModal/ExportPromptModal';
+import { Help } from './ui/Help/Help';
 import { useScenarioStore } from './state/scenarioStore';
 import { downloadScenarioJson, pickAndLoadScenarioJson } from './persistence/save';
 import { makeBlankScenario } from './state/defaults';
 
-type Tab = 'inputs' | 'results' | 'strategies';
+type Tab = 'inputs' | 'results' | 'strategies' | 'help';
 
 export function App() {
   const [tab, setTab] = useState<Tab>('inputs');
@@ -61,11 +62,19 @@ export function App() {
         <button className={`tab ${tab === 'strategies' ? 'active' : ''}`} onClick={() => setTab('strategies')}>
           Strategies
         </button>
+        <button
+          className={`tab ${tab === 'help' ? 'active' : ''}`}
+          onClick={() => setTab('help')}
+          style={{ marginLeft: 'auto' }}
+        >
+          Help
+        </button>
       </div>
 
       {tab === 'inputs' && <InputWizard />}
       {tab === 'results' && <ResultsDashboard />}
       {tab === 'strategies' && <StrategyCompare onApply={() => setTab('results')} />}
+      {tab === 'help' && <Help />}
 
       {exportOpen && <ExportPromptModal onClose={() => setExportOpen(false)} />}
     </div>
