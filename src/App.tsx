@@ -1,20 +1,45 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { InputWizard } from './ui/InputWizard/InputWizard';
 import { ResultsDashboard } from './ui/ResultsDashboard/ResultsDashboard';
 import { StrategyCompare } from './ui/StrategyCompare/StrategyCompare';
 import { ExportPromptModal } from './ui/ExportPromptModal/ExportPromptModal';
 import { Help } from './ui/Help/Help';
+import { Landing } from './ui/Landing/Landing';
 import { useScenarioStore } from './state/scenarioStore';
 import { downloadScenarioJson, pickAndLoadScenarioJson } from './persistence/save';
 import { makeBlankScenario } from './state/defaults';
 
 type Tab = 'inputs' | 'results' | 'strategies' | 'help';
+type View = 'landing' | 'app';
+
+const BMC_URL = 'https://www.buymeacoffee.com/retireright';
+
+function viewFromHash(): View {
+  return typeof window !== 'undefined' && window.location.hash === '#app' ? 'app' : 'landing';
+}
 
 export function App() {
+  const [view, setView] = useState<View>(viewFromHash);
   const [tab, setTab] = useState<Tab>('inputs');
   const [exportOpen, setExportOpen] = useState(false);
   const scenario = useScenarioStore((s) => s.scenario);
   const loadScenario = useScenarioStore((s) => s.setScenario);
+
+  useEffect(() => {
+    const onHash = () => setView(viewFromHash());
+    window.addEventListener('hashchange', onHash);
+    return () => window.removeEventListener('hashchange', onHash);
+  }, []);
+
+  const launchApp = () => {
+    window.location.hash = 'app';
+    setView('app');
+  };
+
+  const backToLanding = () => {
+    window.location.hash = '';
+    setView('landing');
+  };
 
   const handleLoad = async () => {
     try {
@@ -35,11 +60,17 @@ export function App() {
     }
   };
 
+  if (view === 'landing') {
+    return <Landing onLaunch={launchApp} />;
+  }
+
   return (
     <div className="app">
       <div className="app-header">
         <div>
-          <h1>Retirement Planner</h1>
+          <h1 style={{ cursor: 'pointer' }} onClick={backToLanding} title="Back to landing page">
+            Retire Right
+          </h1>
           <div className="subtitle">100% local · no server · your data never leaves this browser</div>
         </div>
         <div className="toolbar">
@@ -49,6 +80,15 @@ export function App() {
           <button className="btn-danger" onClick={handleClear} title="Reset every field to blank">
             Clear all data
           </button>
+          <a
+            className="app-support-link"
+            href={BMC_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Support Retire Right"
+          >
+            ☕ Support
+          </a>
         </div>
       </div>
 

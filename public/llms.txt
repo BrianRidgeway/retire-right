@@ -1,0 +1,31 @@
+# Retire Right
+
+> Free, privacy-first retirement planning calculator. Models Roth conversions, RMDs, Medicare IRMAA surcharges, Social Security timing, federal + state income tax, NIIT, and after-heir-tax estate value. Runs entirely in the browser — no data is sent to a server.
+
+## What it does
+
+Retire Right is a single-page web application that takes a user's household, accounts (traditional IRA/401(k), Roth, taxable brokerage, HSA), income streams, spending plan, and assumptions, then projects year-by-year through the end of the plan. It applies current-law 2025 tax rules:
+
+- Federal ordinary + LTCG brackets with proper stacking
+- Social Security taxability via the provisional-income method and claim-age multipliers (62-70)
+- Medicare IRMAA Part B + D surcharges with the 2-year MAGI lookback
+- NIIT 3.8% above MAGI thresholds
+- RMDs under SECURE Act 2.0 (age 73 or 75 based on birth year) using the IRS Uniform Lifetime Table
+- Pro-rata rule (IRC §72) for non-deductible IRA basis on withdrawals and Roth conversions
+- State income tax for CA, NY, PA, MD (with county local surcharge); FL, TX, WA have no state income tax
+- After-heir-tax estate value: non-spouse heirs pay ordinary income tax on inherited traditional IRA withdrawals under the SECURE Act 10-year rule; Roth passes tax-free; taxable brokerage gets step-up in basis
+
+An optimizer then does coordinate descent over Roth conversion schedules, Social Security claim ages, and withdrawal-order policies to propose ranked alternatives with plain-English actions and rationale.
+
+## Privacy
+
+All computation happens client-side. The site serves only static JS/CSS/HTML. No user data is transmitted, stored, or logged on any server. Save/Load JSON writes and reads files on the user's own filesystem.
+
+## What it is not
+
+Not tax preparation software. Not personalized financial advice. Not a registered investment advisor service. Educational tool only; users should consult a fee-only CFP or tax professional for decisions.
+
+## Links
+
+- App: https://retireright.app/#app
+- Documentation: https://retireright.app/ (Help tab inside the app)

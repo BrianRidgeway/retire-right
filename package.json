@@ -1,12 +1,12 @@
 {
-  "name": "retirement-planning",
+  "name": "retire-right",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "build:deploy": "tsc -b && vite build --base=/retirement-planning/",
+    "build:deploy": "tsc -b && vite build --base=/",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest"
