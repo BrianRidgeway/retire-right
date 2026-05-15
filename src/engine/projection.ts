@@ -70,9 +70,9 @@ export function runScenario(scenario: Scenario): YearResult[] {
     }
 
     // --- Social Security (per spouse) ---
-    const ssPrimary = ssBenefitThisYear(household.primary.ssBenefitAt67, household.primary.ssClaimAge, primaryAge);
+    const ssPrimary = ssBenefitThisYear(household.primary, primaryAge);
     const ssSpouse = household.spouse
-      ? ssBenefitThisYear(household.spouse.ssBenefitAt67, household.spouse.ssClaimAge, spouseAge!)
+      ? ssBenefitThisYear(household.spouse, spouseAge!)
       : 0;
     const ssGross = ssPrimary + ssSpouse;
 
@@ -302,7 +302,13 @@ export function runScenario(scenario: Scenario): YearResult[] {
   return results;
 }
 
-function ssBenefitThisYear(benefitAt67: number, claimAge: number, currentAge: number): number {
-  if (currentAge < claimAge) return 0;
-  return benefitAt67 * ssClaimAgeMultiplier(claimAge);
+function ssBenefitThisYear(
+  person: { ssBenefitAt67: number; ssClaimAge: number; ssAlreadyClaimed: boolean; ssCurrentAnnualBenefit: number },
+  currentAge: number,
+): number {
+  if (currentAge < person.ssClaimAge) return 0;
+  // If the person is already collecting, use the actual benefit they reported.
+  // The FRA multiplier is meaningless here — they already know their check.
+  if (person.ssAlreadyClaimed) return person.ssCurrentAnnualBenefit;
+  return person.ssBenefitAt67 * ssClaimAgeMultiplier(person.ssClaimAge);
 }

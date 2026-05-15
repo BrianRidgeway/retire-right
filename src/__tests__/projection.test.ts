@@ -49,6 +49,34 @@ describe('runScenario smoke test', () => {
     expect(at?.socialSecurity ?? 0).toBeGreaterThan(0);
   });
 
+  it('Already-collecting retiree gets their reported current benefit (no multiplier applied)', () => {
+    // Primary born 1953 (age 72 in 2025), claimed at 70, currently receiving $50,000/yr.
+    // The app must NOT multiply this by ssClaimAgeMultiplier(70)=1.24 — that would inflate to $62k.
+    const s = makeDefaultScenario();
+    const scenario: Scenario = {
+      ...s,
+      startYear: 2025,
+      household: {
+        ...s.household,
+        primary: {
+          ...s.household.primary,
+          birthYear: 1953,
+          ssBenefitAt67: 40000,
+          ssClaimAge: 70,
+          ssAlreadyClaimed: true,
+          ssCurrentAnnualBenefit: 50000,
+        },
+        spouse: s.household.spouse
+          ? { ...s.household.spouse, birthYear: 1955, ssAlreadyClaimed: true, ssCurrentAnnualBenefit: 30000, ssClaimAge: 67 }
+          : undefined,
+        planEndAge: 95,
+      },
+    };
+    const results = runScenario(scenario);
+    const firstYear = results[0];
+    expect(firstYear.socialSecurity).toBeCloseTo(80000, 0);
+  });
+
   it('Net worth is positive at start', () => {
     const scenario = base();
     const results = runScenario(scenario);

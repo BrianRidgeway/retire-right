@@ -36,6 +36,8 @@ export function HouseholdStep() {
               state: s.household.primary.state,
               ssBenefitAt67: 30000,
               ssClaimAge: 67,
+              ssAlreadyClaimed: false,
+              ssCurrentAnnualBenefit: 0,
             },
           },
         };
@@ -138,24 +140,59 @@ function PersonFields({
           ))}
         </select>
       </div>
-      <div className="field">
-        <label>SS benefit at age 67 (annual)</label>
-        <input
-          type="number"
-          value={person.ssBenefitAt67}
-          onChange={(e) => onChange({ ...person, ssBenefitAt67: Number(e.target.value) })}
-        />
+      <div className="field" style={{ gridColumn: '1 / -1' }}>
+        <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+          <input
+            type="checkbox"
+            checked={person.ssAlreadyClaimed}
+            onChange={(e) => onChange({ ...person, ssAlreadyClaimed: e.target.checked })}
+          />
+          Already collecting Social Security
+        </label>
       </div>
-      <div className="field">
-        <label>Planned claim age</label>
-        <input
-          type="number"
-          min={62}
-          max={70}
-          value={person.ssClaimAge}
-          onChange={(e) => onChange({ ...person, ssClaimAge: Number(e.target.value) })}
-        />
-      </div>
+      {person.ssAlreadyClaimed ? (
+        <>
+          <div className="field">
+            <label>Current SS benefit (annual)</label>
+            <input
+              type="number"
+              value={person.ssCurrentAnnualBenefit}
+              onChange={(e) => onChange({ ...person, ssCurrentAnnualBenefit: Number(e.target.value) })}
+            />
+          </div>
+          <div className="field">
+            <label>Age when claimed</label>
+            <input
+              type="number"
+              min={62}
+              max={70}
+              value={person.ssClaimAge}
+              onChange={(e) => onChange({ ...person, ssClaimAge: Number(e.target.value) })}
+            />
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="field">
+            <label>SS benefit at age 67 (annual)</label>
+            <input
+              type="number"
+              value={person.ssBenefitAt67}
+              onChange={(e) => onChange({ ...person, ssBenefitAt67: Number(e.target.value) })}
+            />
+          </div>
+          <div className="field">
+            <label>Planned claim age</label>
+            <input
+              type="number"
+              min={62}
+              max={70}
+              value={person.ssClaimAge}
+              onChange={(e) => onChange({ ...person, ssClaimAge: Number(e.target.value) })}
+            />
+          </div>
+        </>
+      )}
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { runOptimizer } from '../engine/optimizer/combine';
+import { optimizeSsClaim } from '../engine/optimizer/ssClaim';
 import { makeDefaultScenario } from '../state/defaults';
 import { Scenario } from '../types';
 
@@ -42,4 +43,40 @@ describe('runOptimizer', () => {
     const ms = Date.now() - t0;
     expect(ms).toBeLessThan(15000);
   }, 20000);
+});
+
+describe('optimizeSsClaim', () => {
+  it('does not vary claim age for a person who has already claimed', () => {
+    // Primary born 1953, age 72 in 2025, claimed at 70. Optimizer must NOT
+    // recommend a different claim age — the past is fixed.
+    const s = makeDefaultScenario();
+    const scenario: Scenario = {
+      ...s,
+      startYear: 2025,
+      household: {
+        ...s.household,
+        primary: {
+          ...s.household.primary,
+          birthYear: 1953,
+          ssClaimAge: 70,
+          ssAlreadyClaimed: true,
+          ssCurrentAnnualBenefit: 50000,
+        },
+        spouse: s.household.spouse
+          ? {
+              ...s.household.spouse,
+              birthYear: 1955,
+              ssClaimAge: 67,
+              ssAlreadyClaimed: true,
+              ssCurrentAnnualBenefit: 30000,
+            }
+          : undefined,
+      },
+    };
+    const strat = optimizeSsClaim(scenario, scenario.strategy);
+    expect(strat.ssClaimAges[scenario.household.primary.id]).toBe(70);
+    if (scenario.household.spouse) {
+      expect(strat.ssClaimAges[scenario.household.spouse.id]).toBe(67);
+    }
+  });
 });

@@ -30,6 +30,8 @@ export const PersonSchema = z.object({
   state: z.string().length(2),
   ssBenefitAt67: z.number().min(0),
   ssClaimAge: z.number().min(62).max(70),
+  ssAlreadyClaimed: z.boolean().default(false),
+  ssCurrentAnnualBenefit: z.number().min(0).default(0),
 });
 export type Person = z.infer<typeof PersonSchema>;
 
