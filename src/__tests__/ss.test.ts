@@ -43,19 +43,36 @@ describe('computeSocialSecurityTaxable (MFJ)', () => {
   });
 });
 
-describe('ssClaimAgeMultiplier', () => {
+describe('ssClaimAgeMultiplier (born 1960+, FRA 67)', () => {
+  const by = 1965;
   it('FRA (67) gives 1.0', () => {
-    expect(ssClaimAgeMultiplier(67)).toBeCloseTo(1.0, 4);
+    expect(ssClaimAgeMultiplier(67, by)).toBeCloseTo(1.0, 4);
   });
   it('Age 70 gives +24%', () => {
-    expect(ssClaimAgeMultiplier(70)).toBeCloseTo(1.24, 3);
+    expect(ssClaimAgeMultiplier(70, by)).toBeCloseTo(1.24, 3);
   });
   it('Age 62 gives 30% reduction', () => {
-    // 60 months early: 36*(5/9)/100 + 24*(5/12)/100 = 20 + 10 = 30%
-    expect(ssClaimAgeMultiplier(62)).toBeCloseTo(0.7, 3);
+    expect(ssClaimAgeMultiplier(62, by)).toBeCloseTo(0.7, 3);
   });
   it('Age 65 gives ~13.33% reduction', () => {
-    // 24 months early: 24 * (5/9) / 100 = 13.333%
-    expect(ssClaimAgeMultiplier(65)).toBeCloseTo(1 - 24 * (5 / 900), 4);
+    expect(ssClaimAgeMultiplier(65, by)).toBeCloseTo(1 - 24 * (5 / 900), 4);
+  });
+});
+
+describe('ssClaimAgeMultiplier (per-birth-year FRA)', () => {
+  it('born 1954 (FRA 66): claiming at 66 = 1.0', () => {
+    expect(ssClaimAgeMultiplier(66, 1954)).toBeCloseTo(1.0, 4);
+  });
+  it('born 1954: claiming at 70 = +32% (4 years × 8%)', () => {
+    expect(ssClaimAgeMultiplier(70, 1954)).toBeCloseTo(1.32, 3);
+  });
+  it('born 1957 (FRA 66.5): claiming at 67 = +4% (6 months delay × 8%/yr)', () => {
+    expect(ssClaimAgeMultiplier(67, 1957)).toBeCloseTo(1.04, 3);
+  });
+  it('born 1957: claiming at 66.5 = 1.0', () => {
+    expect(ssClaimAgeMultiplier(66.5, 1957)).toBeCloseTo(1.0, 4);
+  });
+  it('born 1957: claiming at 62 = 27.5% reduction (54 months early: 36×5/9 + 18×5/12 = 20 + 7.5)', () => {
+    expect(ssClaimAgeMultiplier(62, 1957)).toBeCloseTo(0.725, 3);
   });
 });

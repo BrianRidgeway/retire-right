@@ -1,4 +1,5 @@
 import federal2025 from '../tables/federal-2025.json';
+import federalTcjaSunset from '../tables/federal-tcja-sunset.json';
 import irmaa2025 from '../tables/irmaa-2025.json';
 import rmdTable from '../tables/rmd-divisors.json';
 import states2025 from '../tables/states-2025.json';
@@ -57,6 +58,25 @@ export type StateTaxConfig =
     };
 
 export const FEDERAL: FederalTables = federal2025 as FederalTables;
+export const FEDERAL_TCJA_SUNSET: FederalTables = federalTcjaSunset as FederalTables;
 export const IRMAA: IrmaaTables = irmaa2025 as IrmaaTables;
 export const RMD: RmdTables = rmdTable as RmdTables;
 export const STATES: StateTables = states2025 as StateTables;
+
+/**
+ * The first year in which the TCJA sunset table applies (when scenario.taxLawMode === 'tcja-sunset').
+ * TCJA was originally scheduled to sunset at the end of 2025, so brackets revert in 2026.
+ */
+export const TCJA_SUNSET_FIRST_YEAR = 2026;
+
+/**
+ * Pick the right federal table for a given year + tax law mode. Years before TCJA_SUNSET_FIRST_YEAR
+ * always use current-law brackets; from that year onward, the choice depends on taxLawMode.
+ */
+export function federalTableForYear(
+  year: number,
+  mode: 'current-law' | 'tcja-sunset',
+): FederalTables {
+  if (mode === 'tcja-sunset' && year >= TCJA_SUNSET_FIRST_YEAR) return FEDERAL_TCJA_SUNSET;
+  return FEDERAL;
+}

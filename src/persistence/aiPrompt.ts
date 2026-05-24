@@ -12,9 +12,9 @@ export function buildAiPrompt(scenario: Scenario, strategies: StrategyResult[]):
   lines.push('');
   lines.push(`## Household`);
   lines.push(`- Filing status: ${h.filingStatus.toUpperCase()}`);
-  lines.push(`- Primary: ${p.name}, born ${p.birthYear}, state ${p.state}, SS at FRA (67) = $${fmt(p.ssBenefitAt67)}, planned claim age ${p.ssClaimAge}`);
+  lines.push(`- Primary: ${p.name}, born ${p.birthYear}, state ${p.state}, SS at FRA (PIA) = $${fmt(p.ssBenefitAtFra)}, planned claim age ${p.ssClaimAge}`);
   if (s) {
-    lines.push(`- Spouse: ${s.name}, born ${s.birthYear}, state ${s.state}, SS at FRA (67) = $${fmt(s.ssBenefitAt67)}, planned claim age ${s.ssClaimAge}`);
+    lines.push(`- Spouse: ${s.name}, born ${s.birthYear}, state ${s.state}, SS at FRA (PIA) = $${fmt(s.ssBenefitAtFra)}, planned claim age ${s.ssClaimAge}`);
   }
   lines.push(`- Plan end age: ${h.planEndAge}`);
   lines.push('');

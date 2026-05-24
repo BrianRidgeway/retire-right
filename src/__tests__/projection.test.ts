@@ -61,7 +61,7 @@ describe('runScenario smoke test', () => {
         primary: {
           ...s.household.primary,
           birthYear: 1953,
-          ssBenefitAt67: 40000,
+          ssBenefitAtFra: 40000,
           ssClaimAge: 70,
           ssAlreadyClaimed: true,
           ssCurrentAnnualBenefit: 50000,
@@ -96,6 +96,7 @@ describe('runScenario smoke test', () => {
         taxablePercent: 1,
         startYear: 2025,
         cola: 0,
+        survivorPct: 1,
       },
     ];
     const results = runScenario(scenario);

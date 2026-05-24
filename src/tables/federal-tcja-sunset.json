@@ -1,0 +1,49 @@
+{
+  "taxYear": 2026,
+  "note": "Approximate pre-TCJA federal brackets adjusted for inflation to ~2026 levels. Pre-TCJA rates: 10/15/25/28/33/35/39.6%. Thresholds are inflation-indexed estimates from 2017 levels; verify against IRS guidance once finalized. Standard deduction roughly halves under pre-TCJA rules (no personal-exemption add-back modeled here). LTCG/SS taxability tiers unchanged from current law in this approximation.",
+  "ordinaryBrackets": {
+    "single": [
+      { "rate": 0.10,  "min": 0,      "max": 12150 },
+      { "rate": 0.15,  "min": 12150,  "max": 49500 },
+      { "rate": 0.25,  "min": 49500,  "max": 119900 },
+      { "rate": 0.28,  "min": 119900, "max": 249700 },
+      { "rate": 0.33,  "min": 249700, "max": 542400 },
+      { "rate": 0.35,  "min": 542400, "max": 612750 },
+      { "rate": 0.396, "min": 612750, "max": null }
+    ],
+    "mfj": [
+      { "rate": 0.10,  "min": 0,      "max": 24300 },
+      { "rate": 0.15,  "min": 24300,  "max": 99000 },
+      { "rate": 0.25,  "min": 99000,  "max": 199600 },
+      { "rate": 0.28,  "min": 199600, "max": 304300 },
+      { "rate": 0.33,  "min": 304300, "max": 543300 },
+      { "rate": 0.35,  "min": 543300, "max": 613800 },
+      { "rate": 0.396, "min": 613800, "max": null }
+    ]
+  },
+  "ltcgBrackets": {
+    "single": [
+      { "rate": 0.0,  "min": 0,      "max": 48350 },
+      { "rate": 0.15, "min": 48350,  "max": 533400 },
+      { "rate": 0.20, "min": 533400, "max": null }
+    ],
+    "mfj": [
+      { "rate": 0.0,  "min": 0,      "max": 96700 },
+      { "rate": 0.15, "min": 96700,  "max": 600050 },
+      { "rate": 0.20, "min": 600050, "max": null }
+    ]
+  },
+  "standardDeduction": {
+    "single": 7800,
+    "mfj": 15600,
+    "age65Extra": { "single": 1600, "mfj": 1600 }
+  },
+  "ssTaxability": {
+    "single": { "tier1": 25000, "tier2": 34000 },
+    "mfj": { "tier1": 32000, "tier2": 44000 }
+  },
+  "niit": {
+    "rate": 0.038,
+    "threshold": { "single": 200000, "mfj": 250000 }
+  }
+}

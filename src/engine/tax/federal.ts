@@ -1,4 +1,4 @@
-import { FEDERAL, Bracket, StatusKey } from '../tables';
+import { FEDERAL, FederalTables, Bracket, StatusKey } from '../tables';
 
 export function taxFromBrackets(income: number, brackets: Bracket[]): number {
   if (income <= 0) return 0;
@@ -12,9 +12,18 @@ export function taxFromBrackets(income: number, brackets: Bracket[]): number {
   return tax;
 }
 
-export function standardDeduction(status: StatusKey, primaryAge: number, spouseAge?: number): number {
-  const base = FEDERAL.standardDeduction[status];
-  const extra = FEDERAL.standardDeduction.age65Extra[status];
+/**
+ * Standard deduction for the given filing status and ages. Uses the supplied federal table
+ * (so TCJA-sunset years use the pre-TCJA standard deduction). Falls back to FEDERAL.
+ */
+export function standardDeduction(
+  status: StatusKey,
+  primaryAge: number,
+  spouseAge?: number,
+  tables: FederalTables = FEDERAL,
+): number {
+  const base = tables.standardDeduction[status];
+  const extra = tables.standardDeduction.age65Extra[status];
   let add = 0;
   if (primaryAge >= 65) add += extra;
   if (status === 'mfj' && spouseAge != null && spouseAge >= 65) add += extra;
@@ -26,6 +35,8 @@ export type FederalTaxInput = {
   ordinaryIncome: number;
   ltcgIncome: number;
   standardDeduction: number;
+  /** Federal tables to use for this computation (default = current law). */
+  tables?: FederalTables;
 };
 
 export type FederalTaxOutput = {
@@ -43,6 +54,7 @@ export type FederalTaxOutput = {
  */
 export function computeFederalTax(input: FederalTaxInput): FederalTaxOutput {
   const { status, ordinaryIncome, ltcgIncome, standardDeduction: sd } = input;
+  const tables = input.tables ?? FEDERAL;
 
   const ltcgSafe = Math.max(0, ltcgIncome);
   const ordinarySafe = Math.max(0, ordinaryIncome);
@@ -55,11 +67,11 @@ export function computeFederalTax(input: FederalTaxInput): FederalTaxOutput {
 
   const totalTaxableIncome = taxableOrdinary + taxableLtcg;
 
-  const ordinaryBrackets = FEDERAL.ordinaryBrackets[status];
+  const ordinaryBrackets = tables.ordinaryBrackets[status];
   const ordinaryTax = taxFromBrackets(taxableOrdinary, ordinaryBrackets);
 
   // LTCG: stacks on top of taxableOrdinary. Apply LTCG brackets to [taxableOrdinary, taxableOrdinary+taxableLtcg].
-  const ltcgBrackets = FEDERAL.ltcgBrackets[status];
+  const ltcgBrackets = tables.ltcgBrackets[status];
   let ltcgTax = 0;
   let remaining = taxableLtcg;
   let cursor = taxableOrdinary;

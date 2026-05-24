@@ -1,10 +1,31 @@
 import { STATES, StatusKey, Bracket } from '../tables';
 import { taxFromBrackets } from './federal';
+import mdCountiesData from '../../tables/md-counties.json';
+
+type MdCountyTable = {
+  defaultRate: number;
+  counties: Record<string, { name: string; rate: number }>;
+};
+const MD_COUNTIES = mdCountiesData as MdCountyTable;
+
+export function mdCountyRate(countyCode: string | undefined): number {
+  if (!countyCode) return MD_COUNTIES.defaultRate;
+  const c = MD_COUNTIES.counties[countyCode];
+  return c ? c.rate : MD_COUNTIES.defaultRate;
+}
+
+export function mdCountyList(): { code: string; name: string; rate: number }[] {
+  return Object.entries(MD_COUNTIES.counties)
+    .map(([code, v]) => ({ code, name: v.name, rate: v.rate }))
+    .sort((a, b) => a.name.localeCompare(b.name));
+}
 
 export type StateTaxInput = {
   stateCode: string;
   status: StatusKey;
   primaryAge: number;
+  /** Optional county/local jurisdiction code (e.g. "MD-HOW"). MD only at present. */
+  countyCode?: string;
   wages: number;
   pension: number;
   rentalOther: number;
@@ -80,9 +101,13 @@ export function computeStateTax(input: StateTaxInput): StateTaxOutput {
     stateTax = taxFromBrackets(taxableIncome, brackets);
   }
 
-  // Local (county/city) surcharge - flat rate on the state-taxable base. MD uses this for
-  // county income tax; most others are 0.
-  const localSurcharge = cfg.localSurcharge ?? 0;
+  // Local (county/city) surcharge - flat rate on the state-taxable base. MD uses per-county
+  // rates from md-counties.json (Howard, Montgomery, Baltimore City = 3.2% top of the range;
+  // Worcester = 1.75% at the bottom). Non-MD states fall back to cfg.localSurcharge (~0).
+  let localSurcharge = cfg.localSurcharge ?? 0;
+  if (input.stateCode === 'MD') {
+    localSurcharge = mdCountyRate(input.countyCode);
+  }
   const localTax = taxableIncome * localSurcharge;
 
   return { stateCode: input.stateCode, taxableIncome, tax: stateTax + localTax };

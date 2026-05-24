@@ -1,5 +1,5 @@
 import { useScenarioStore } from '../../state/scenarioStore';
-import { supportedStates } from '../../engine/tax/state';
+import { mdCountyList, supportedStates } from '../../engine/tax/state';
 import { FilingStatus, Person } from '../../types';
 
 export function HouseholdStep() {
@@ -34,7 +34,7 @@ export function HouseholdStep() {
               name: 'Spouse',
               birthYear: s.household.primary.birthYear,
               state: s.household.primary.state,
-              ssBenefitAt67: 30000,
+              ssBenefitAtFra: 30000,
               ssClaimAge: 67,
               ssAlreadyClaimed: false,
               ssCurrentAnnualBenefit: 0,
@@ -140,6 +140,24 @@ function PersonFields({
           ))}
         </select>
       </div>
+      {person.state === 'MD' && (
+        <div className="field" style={{ gridColumn: '1 / -1' }}>
+          <label title="Maryland counties have local income tax of 1.75%-3.2% on top of state brackets. Pick the county to use the correct rate; leave default for the statewide average.">
+            MD county (for local income tax)
+          </label>
+          <select
+            value={person.countyCode ?? ''}
+            onChange={(e) => onChange({ ...person, countyCode: e.target.value || undefined })}
+          >
+            <option value="">— use statewide average (3.0%) —</option>
+            {mdCountyList().map((c) => (
+              <option key={c.code} value={c.code}>
+                {c.name} ({(c.rate * 100).toFixed(2)}%)
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
       <div className="field" style={{ gridColumn: '1 / -1' }}>
         <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
           <input
@@ -174,11 +192,11 @@ function PersonFields({
       ) : (
         <>
           <div className="field">
-            <label>SS benefit at age 67 (annual)</label>
+            <label>SS benefit at Full Retirement Age (PIA, annual)</label>
             <input
               type="number"
-              value={person.ssBenefitAt67}
-              onChange={(e) => onChange({ ...person, ssBenefitAt67: Number(e.target.value) })}
+              value={person.ssBenefitAtFra}
+              onChange={(e) => onChange({ ...person, ssBenefitAtFra: Number(e.target.value) })}
             />
           </div>
           <div className="field">

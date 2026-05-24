@@ -1,0 +1,31 @@
+{
+  "note": "Maryland county income tax rates for 2025 (applied to MD state taxable income on top of state brackets). Source: Comptroller of Maryland Form 502. Verify annually — rates change. Non-residents = 2.25%.",
+  "taxYear": 2025,
+  "defaultRate": 0.03,
+  "counties": {
+    "MD-ALLE": { "name": "Allegany", "rate": 0.0303 },
+    "MD-ANNE": { "name": "Anne Arundel", "rate": 0.027 },
+    "MD-BALT-CITY": { "name": "Baltimore City", "rate": 0.032 },
+    "MD-BALT": { "name": "Baltimore County", "rate": 0.032 },
+    "MD-CALV": { "name": "Calvert", "rate": 0.03 },
+    "MD-CARO": { "name": "Caroline", "rate": 0.032 },
+    "MD-CARR": { "name": "Carroll", "rate": 0.0303 },
+    "MD-CECI": { "name": "Cecil", "rate": 0.028 },
+    "MD-CHAR": { "name": "Charles", "rate": 0.0303 },
+    "MD-DORC": { "name": "Dorchester", "rate": 0.032 },
+    "MD-FRED": { "name": "Frederick", "rate": 0.0296 },
+    "MD-GARR": { "name": "Garrett", "rate": 0.0265 },
+    "MD-HARF": { "name": "Harford", "rate": 0.0306 },
+    "MD-HOW": { "name": "Howard", "rate": 0.032 },
+    "MD-KENT": { "name": "Kent", "rate": 0.032 },
+    "MD-MONT": { "name": "Montgomery", "rate": 0.032 },
+    "MD-PG": { "name": "Prince George's", "rate": 0.032 },
+    "MD-QA": { "name": "Queen Anne's", "rate": 0.032 },
+    "MD-SM": { "name": "St. Mary's", "rate": 0.031 },
+    "MD-SOM": { "name": "Somerset", "rate": 0.032 },
+    "MD-TALB": { "name": "Talbot", "rate": 0.024 },
+    "MD-WASH": { "name": "Washington", "rate": 0.028 },
+    "MD-WICO": { "name": "Wicomico", "rate": 0.032 },
+    "MD-WORC": { "name": "Worcester", "rate": 0.0175 }
+  }
+}

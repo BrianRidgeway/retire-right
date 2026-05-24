@@ -193,6 +193,60 @@ function StrategyCard({
         </div>
       </div>
 
+      {r.heirSensitivity.length > 0 && (
+        <div style={{ marginTop: 10, padding: 10, background: 'rgba(56,189,248,0.06)', borderRadius: 4, fontSize: 12 }}>
+          <div className="muted" style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.05, marginBottom: 6 }}>
+            Heirs receive after tax — sensitivity to heir's marginal rate
+          </div>
+          <div style={{ display: 'flex', gap: 16 }}>
+            {r.heirSensitivity.map((s) => (
+              <div key={s.rate}>
+                <div className="muted">@ {(s.rate * 100).toFixed(0)}%</div>
+                <div>{fmt(s.endingHeirNetWorth)}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {r.survivor && (
+        <div style={{ marginTop: 10, padding: 10, background: 'rgba(148,163,184,0.08)', borderRadius: 4, fontSize: 12 }}>
+          <div className="muted" style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.05, marginBottom: 6 }}>
+            Survivor scenario — {r.survivor.decedentName} dies in {r.survivor.deathYear} (age 85)
+          </div>
+          <div className="grid-4">
+            <div>
+              <div className="muted">Lifetime tax</div>
+              <div>{fmt(r.survivor.lifetimeTax)}</div>
+              {!isBaseline && (
+                <div className="muted" style={{ fontSize: 10 }}>
+                  {r.survivor.lifetimeTax > baseline.survivor!.lifetimeTax ? '+' : '−'}
+                  {fmt(Math.abs(r.survivor.lifetimeTax - baseline.survivor!.lifetimeTax))} vs baseline survivor
+                </div>
+              )}
+            </div>
+            <div>
+              <div className="muted">Ending net worth</div>
+              <div>{fmt(r.survivor.endingNetWorth)}</div>
+            </div>
+            <div>
+              <div className="muted">Heirs after tax</div>
+              <div>{fmt(r.survivor.endingHeirNetWorth)}</div>
+              {!isBaseline && baseline.survivor && (
+                <div className="muted" style={{ fontSize: 10 }}>
+                  {r.survivor.endingHeirNetWorth >= baseline.survivor.endingHeirNetWorth ? '+' : '−'}
+                  {fmt(Math.abs(r.survivor.endingHeirNetWorth - baseline.survivor.endingHeirNetWorth))} vs baseline survivor
+                </div>
+              )}
+            </div>
+            <div>
+              <div className="muted">Shortfall</div>
+              <div>{r.survivor.anyShortfall ? 'Yes' : 'No'}</div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {(r.pros.length > 0 || r.cons.length > 0) && (
         <div className="grid-2" style={{ marginTop: 12, gap: 16 }}>
           {r.pros.length > 0 && (
@@ -219,6 +273,49 @@ function StrategyCard({
               </ul>
             </div>
           )}
+        </div>
+      )}
+
+      {r.ltcStress && (
+        <div style={{ marginTop: 10, padding: 10, background: r.ltcStress.stressInducedShortfall ? 'rgba(220,38,38,0.10)' : 'rgba(148,163,184,0.08)', borderRadius: 4, fontSize: 12 }}>
+          <div className="muted" style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.05, marginBottom: 6 }}>
+            LTC stress — 3 years of paid care starting {r.ltcStress.startYear} (total ~{fmt(r.ltcStress.totalCostNominal)} nominal)
+          </div>
+          <div className="grid-4">
+            <div>
+              <div className="muted">Ending net worth</div>
+              <div>{fmt(r.ltcStress.endingNetWorth)}</div>
+            </div>
+            <div>
+              <div className="muted">Heirs after tax</div>
+              <div>{fmt(r.ltcStress.endingHeirNetWorth)}</div>
+            </div>
+            <div>
+              <div className="muted">Shortfall</div>
+              <div style={{ color: r.ltcStress.anyShortfall ? 'var(--bad)' : undefined }}>
+                {r.ltcStress.anyShortfall ? 'Yes' : 'No'}
+              </div>
+            </div>
+            <div>
+              <div className="muted">vs base case</div>
+              <div style={{ color: r.ltcStress.stressInducedShortfall ? 'var(--bad)' : undefined }}>
+                {r.ltcStress.stressInducedShortfall ? 'Stress-induced failure ⚠' : 'Survives stress'}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {r.concerns.length > 0 && (
+        <div style={{ marginTop: 12, padding: 10, borderLeft: '3px solid var(--warn, #d97706)', background: 'rgba(217,119,6,0.08)' }}>
+          <div style={{ fontSize: 11, color: 'var(--warn, #d97706)', textTransform: 'uppercase', letterSpacing: 0.05, marginBottom: 4 }}>
+            Concerns
+          </div>
+          <ul style={{ marginTop: 4, marginBottom: 0, paddingLeft: 18, fontSize: 12, lineHeight: 1.45 }}>
+            {r.concerns.map((c, i) => (
+              <li key={i}>{c}</li>
+            ))}
+          </ul>
         </div>
       )}
     </div>

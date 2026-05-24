@@ -48,53 +48,104 @@ export function AccountsStep() {
         <div></div>
       </div>
 
-      {scenario.accounts.map((a) => (
-        <div className="account-row" key={a.id}>
-          <select value={a.ownerId} onChange={(e) => updateAccount(a.id, { ownerId: e.target.value })}>
-            {owners.map((o) => (
-              <option key={o!.id} value={o!.id}>
-                {o!.name}
-              </option>
-            ))}
-          </select>
-          <select
-            value={a.type}
-            onChange={(e) => updateAccount(a.id, { type: e.target.value as AccountType })}
-          >
-            {ACCOUNT_TYPES.map((t) => (
-              <option key={t} value={t}>
-                {t}
-              </option>
-            ))}
-          </select>
-          <input value={a.label} onChange={(e) => updateAccount(a.id, { label: e.target.value })} />
-          <input
-            type="number"
-            value={a.balance}
-            onChange={(e) => updateAccount(a.id, { balance: Number(e.target.value) })}
-          />
-          <input
-            type="number"
-            value={a.costBasis ?? ''}
-            placeholder={defaultBasisPlaceholder(a)}
-            disabled={a.type === 'roth-ira' || a.type === 'roth-401k'}
-            onChange={(e) =>
-              updateAccount(a.id, {
-                costBasis: e.target.value === '' ? undefined : Number(e.target.value),
-              })
-            }
-          />
-          <input
-            type="number"
-            step="0.001"
-            value={a.expectedReturn}
-            onChange={(e) => updateAccount(a.id, { expectedReturn: Number(e.target.value) })}
-          />
-          <button className="btn-sm btn-danger" onClick={() => removeAccount(a.id)}>
-            ✕
-          </button>
-        </div>
-      ))}
+      {scenario.accounts.map((a) => {
+        const mix = a.assetMix ?? { equitiesPct: 1, bondsPct: 0, reitsPct: 0 };
+        const setMix = (patch: Partial<typeof mix>) =>
+          updateAccount(a.id, { assetMix: { ...mix, ...patch } });
+        return (
+          <div key={a.id}>
+            <div className="account-row">
+              <select value={a.ownerId} onChange={(e) => updateAccount(a.id, { ownerId: e.target.value })}>
+                {owners.map((o) => (
+                  <option key={o!.id} value={o!.id}>
+                    {o!.name}
+                  </option>
+                ))}
+              </select>
+              <select
+                value={a.type}
+                onChange={(e) => updateAccount(a.id, { type: e.target.value as AccountType })}
+              >
+                {ACCOUNT_TYPES.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </select>
+              <input value={a.label} onChange={(e) => updateAccount(a.id, { label: e.target.value })} />
+              <input
+                type="number"
+                value={a.balance}
+                onChange={(e) => updateAccount(a.id, { balance: Number(e.target.value) })}
+              />
+              <input
+                type="number"
+                value={a.costBasis ?? ''}
+                placeholder={defaultBasisPlaceholder(a)}
+                disabled={a.type === 'roth-ira' || a.type === 'roth-401k'}
+                onChange={(e) =>
+                  updateAccount(a.id, {
+                    costBasis: e.target.value === '' ? undefined : Number(e.target.value),
+                  })
+                }
+              />
+              <input
+                type="number"
+                step="0.001"
+                value={a.expectedReturn}
+                onChange={(e) => updateAccount(a.id, { expectedReturn: Number(e.target.value) })}
+              />
+              <button className="btn-sm btn-danger" onClick={() => removeAccount(a.id)}>
+                ✕
+              </button>
+            </div>
+            <div style={{ paddingLeft: 8, marginTop: 4, marginBottom: 8, fontSize: 12, color: 'var(--text-dim)', display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+              <span>Asset mix:</span>
+              <label>
+                Equities%{' '}
+                <input
+                  type="number"
+                  min={0}
+                  max={1}
+                  step="0.05"
+                  style={{ width: 60 }}
+                  value={mix.equitiesPct}
+                  onChange={(e) => setMix({ equitiesPct: Number(e.target.value) })}
+                />
+              </label>
+              <label>
+                Bonds%{' '}
+                <input
+                  type="number"
+                  min={0}
+                  max={1}
+                  step="0.05"
+                  style={{ width: 60 }}
+                  value={mix.bondsPct}
+                  onChange={(e) => setMix({ bondsPct: Number(e.target.value) })}
+                />
+              </label>
+              <label>
+                REITs%{' '}
+                <input
+                  type="number"
+                  min={0}
+                  max={1}
+                  step="0.05"
+                  style={{ width: 60 }}
+                  value={mix.reitsPct}
+                  onChange={(e) => setMix({ reitsPct: Number(e.target.value) })}
+                />
+              </label>
+              {a.type === 'taxable' && (
+                <span style={{ color: 'var(--accent)' }}>
+                  ← bonds/REITs here create annual ordinary-income tax drag; move them into traditional IRA if possible.
+                </span>
+              )}
+            </div>
+          </div>
+        );
+      })}
       <button onClick={addAccount} style={{ marginTop: 12 }}>
         + Add account
       </button>

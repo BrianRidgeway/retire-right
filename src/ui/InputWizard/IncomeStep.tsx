@@ -20,6 +20,7 @@ export function IncomeStep() {
         taxablePercent: 1,
         startYear: scenario.startYear,
         cola: 0.02,
+        survivorPct: 1,
       },
     ]);
   };
@@ -44,38 +45,57 @@ export function IncomeStep() {
       </div>
 
       {scenario.incomeStreams.map((s) => (
-        <div className="income-row" key={s.id}>
-          <input value={s.label} onChange={(e) => updateStream(s.id, { label: e.target.value })} />
-          <select
-            value={s.kind}
-            onChange={(e) => updateStream(s.id, { kind: e.target.value as IncomeStream['kind'] })}
-          >
-            <option value="salary">salary</option>
-            <option value="pension">pension</option>
-            <option value="rental">rental</option>
-            <option value="other">other</option>
-          </select>
-          <input
-            type="number"
-            value={s.annualAmount}
-            onChange={(e) => updateStream(s.id, { annualAmount: Number(e.target.value) })}
-          />
-          <input
-            type="number"
-            value={s.startYear}
-            onChange={(e) => updateStream(s.id, { startYear: Number(e.target.value) })}
-          />
-          <input
-            type="number"
-            value={s.endYear ?? ''}
-            placeholder="-"
-            onChange={(e) =>
-              updateStream(s.id, { endYear: e.target.value === '' ? undefined : Number(e.target.value) })
-            }
-          />
-          <button className="btn-sm btn-danger" onClick={() => removeStream(s.id)}>
-            ✕
-          </button>
+        <div key={s.id}>
+          <div className="income-row">
+            <input value={s.label} onChange={(e) => updateStream(s.id, { label: e.target.value })} />
+            <select
+              value={s.kind}
+              onChange={(e) => updateStream(s.id, { kind: e.target.value as IncomeStream['kind'] })}
+            >
+              <option value="salary">salary</option>
+              <option value="pension">pension</option>
+              <option value="rental">rental</option>
+              <option value="other">other</option>
+            </select>
+            <input
+              type="number"
+              value={s.annualAmount}
+              onChange={(e) => updateStream(s.id, { annualAmount: Number(e.target.value) })}
+            />
+            <input
+              type="number"
+              value={s.startYear}
+              onChange={(e) => updateStream(s.id, { startYear: Number(e.target.value) })}
+            />
+            <input
+              type="number"
+              value={s.endYear ?? ''}
+              placeholder="-"
+              onChange={(e) =>
+                updateStream(s.id, { endYear: e.target.value === '' ? undefined : Number(e.target.value) })
+              }
+            />
+            <button className="btn-sm btn-danger" onClick={() => removeStream(s.id)}>
+              ✕
+            </button>
+          </div>
+          {s.kind === 'pension' && (
+            <div style={{ paddingLeft: 8, marginTop: 4, marginBottom: 8, fontSize: 12, color: 'var(--text-dim)' }}>
+              <label>Survivor benefit fraction (J&S election): </label>
+              <select
+                value={String(s.survivorPct ?? 1)}
+                onChange={(e) => updateStream(s.id, { survivorPct: Number(e.target.value) })}
+              >
+                <option value="0">0% (single-life)</option>
+                <option value="0.5">50%</option>
+                <option value="0.75">75%</option>
+                <option value="1">100% (full J&S)</option>
+              </select>
+              <span style={{ marginLeft: 8 }}>
+                Used in the survivor scenario only — what fraction of this pension continues after the owner dies.
+              </span>
+            </div>
+          )}
         </div>
       ))}
       <button onClick={addStream} style={{ marginTop: 12 }}>

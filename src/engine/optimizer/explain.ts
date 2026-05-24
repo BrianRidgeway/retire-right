@@ -38,14 +38,14 @@ export function describeActions(scenario: Scenario, strategy: Strategy): string[
   const spouseClaim = spouse ? strategy.ssClaimAges[spouse.id] : undefined;
 
   if (primaryClaim != null && primaryClaim !== primary.ssClaimAge) {
-    const pct = (ssClaimAgeMultiplier(primaryClaim) - 1) * 100;
+    const pct = (ssClaimAgeMultiplier(primaryClaim, primary.birthYear) - 1) * 100;
     const direction = primaryClaim > primary.ssClaimAge ? 'delay' : 'accelerate';
     actions.push(
       `${capitalize(direction)} ${primary.name}'s Social Security claim from age ${primary.ssClaimAge} → ${primaryClaim} (${pct >= 0 ? '+' : ''}${pct.toFixed(0)}% vs FRA benefit).`,
     );
   }
   if (spouse && spouseClaim != null && spouseClaim !== spouse.ssClaimAge) {
-    const pct = (ssClaimAgeMultiplier(spouseClaim) - 1) * 100;
+    const pct = (ssClaimAgeMultiplier(spouseClaim, spouse.birthYear) - 1) * 100;
     const direction = spouseClaim > spouse.ssClaimAge ? 'delay' : 'accelerate';
     actions.push(
       `${capitalize(direction)} ${spouse.name}'s Social Security claim from age ${spouse.ssClaimAge} → ${spouseClaim} (${pct >= 0 ? '+' : ''}${pct.toFixed(0)}% vs FRA benefit).`,
@@ -66,9 +66,11 @@ export function describeActions(scenario: Scenario, strategy: Strategy): string[
 function describePolicy(p: Strategy['withdrawalPolicy']): string {
   switch (p) {
     case 'proportional':
-      return 'proportional (draw from every account type each year, smoothing taxable income)';
+      return 'proportional (draw across non-Roth account types in proportion to balance, smoothing taxable income)';
     case 'bracket-fill':
-      return 'bracket-fill (pull extra from traditional to fill the current ordinary bracket, then from taxable/Roth)';
+      return 'bracket-fill (pull extra from traditional up to the current ordinary bracket top, then from taxable, then back to traditional)';
+    case 'preserve-for-step-up':
+      return 'preserve-for-step-up (drain traditional/HSA → Roth → taxable; keeps unrealized gains in brokerage so heirs get a stepped-up basis at death)';
     case 'conventional':
       return 'conventional';
   }

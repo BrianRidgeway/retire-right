@@ -1,3 +1,4 @@
+import { Account, AccountBalance, Assumptions } from '../types';
 import { AccountState, isRoth, isTraditional } from './accounts';
 
 /**
@@ -36,4 +37,45 @@ export function heirNetForAccount(acc: AccountState, heirMarginalTaxRate: number
     return acc.balance;
   }
   return acc.balance;
+}
+
+/**
+ * Compute the share-weighted effective heir marginal rate. When `assumptions.heirs` is empty,
+ * falls back to `assumptions.heirMarginalTaxRate`. When non-empty, returns the weighted average
+ * of each heir's marginal rate by their share.
+ */
+export function effectiveHeirRate(assumptions: Assumptions): number {
+  if (assumptions.heirs.length === 0) return assumptions.heirMarginalTaxRate;
+  const totalShare = assumptions.heirs.reduce((s, h) => s + h.sharePct, 0);
+  if (totalShare <= 0) return assumptions.heirMarginalTaxRate;
+  return assumptions.heirs.reduce((s, h) => s + h.marginalRatePct * (h.sharePct / totalShare), 0);
+}
+
+/**
+ * Compute after-heir-tax value from a year's `balancesEoy` snapshot plus the account-type lookup
+ * from the scenario. Used for sensitivity analysis where we want to re-evaluate the same final
+ * snapshot at different heir tax rates without rerunning the projection.
+ */
+export function heirNetFromBalances(
+  balances: AccountBalance[],
+  accounts: Account[],
+  heirRate: number,
+): number {
+  const typeById = new Map(accounts.map((a) => [a.id, a.type] as const));
+  let total = 0;
+  for (const b of balances) {
+    if (b.balance <= 0) continue;
+    const type = typeById.get(b.accountId);
+    if (!type) continue;
+    if (type === 'traditional-ira' || type === 'traditional-401k' || type === 'hsa') {
+      // We don't carry basis through balancesEoy for traditional/HSA — they're approximated
+      // as fully pre-tax for sensitivity. (The main heirNetValue uses the live account state
+      // which does carry basis.)
+      total += b.balance * (1 - heirRate);
+    } else {
+      // Roth + taxable pass at face (step-up / tax-free).
+      total += b.balance;
+    }
+  }
+  return total;
 }

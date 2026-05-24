@@ -2,7 +2,7 @@ import { Scenario, Strategy, WithdrawalPolicy } from '../../types';
 import { runScenario } from '../projection';
 import { scoreResults } from './score';
 
-const POLICIES: WithdrawalPolicy[] = ['conventional', 'proportional', 'bracket-fill'];
+const POLICIES: WithdrawalPolicy[] = ['conventional', 'proportional', 'bracket-fill', 'preserve-for-step-up'];
 
 export function optimizeWithdrawOrder(scenario: Scenario, baseStrategy: Strategy): Strategy {
   let best = baseStrategy;

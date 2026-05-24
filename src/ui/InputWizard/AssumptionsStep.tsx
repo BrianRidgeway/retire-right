@@ -49,13 +49,39 @@ export function AssumptionsStep() {
             }
           />
           <div className="muted" style={{ fontSize: 11, marginTop: 4 }}>
-            ~24% is typical for middle-aged non-spouse heirs. Set to 0 to score ending wealth at face value.
+            Default 32% assumes a mid-career professional non-spouse heir. The strategy cards also
+            show a sensitivity table at 22/24/32/35% so you can see how robust each plan is to this
+            assumption. Set to 0 to score ending wealth at face value.
+          </div>
+        </div>
+        <div className="field">
+          <label title="If selected, federal tax brackets revert to pre-TCJA (10/15/25/28/33/35/39.6%) in 2026 and beyond. Use this to see how robust your conversion plan is to the rate-path uncertainty.">
+            Tax law mode
+          </label>
+          <select
+            value={a.taxLawMode}
+            onChange={(e) =>
+              update((s) => ({
+                ...s,
+                assumptions: {
+                  ...s.assumptions,
+                  taxLawMode: e.target.value as 'current-law' | 'tcja-sunset',
+                },
+              }))
+            }
+          >
+            <option value="current-law">Current law (TCJA extended)</option>
+            <option value="tcja-sunset">TCJA sunset (pre-2018 brackets from 2026)</option>
+          </select>
+          <div className="muted" style={{ fontSize: 11, marginTop: 4 }}>
+            The right Roth conversion plan is rate-path dependent. Run the optimizer under both
+            modes if you're uncertain — the sunset scenario raises the value of converting now.
           </div>
         </div>
       </div>
       <div className="warning">
-        All tax tables use 2025 rates. Future-year projections assume current law continues; revisit when tax law
-        changes.
+        All tax tables use 2025 rates and (when sunset mode is selected) approximate 2026 pre-TCJA
+        levels. Future-year projections assume tables stay static — revisit when tax law changes.
       </div>
     </div>
   );
