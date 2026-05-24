@@ -71,11 +71,13 @@ export const TCJA_SUNSET_FIRST_YEAR = 2026;
 
 /**
  * Pick the right federal table for a given year + tax law mode. Years before TCJA_SUNSET_FIRST_YEAR
- * always use current-law brackets; from that year onward, the choice depends on taxLawMode.
+ * always use current-law brackets. OBBBA mode uses current-law brackets indefinitely (TCJA rates
+ * made permanent) plus a separate senior-bonus deduction handled by obbbaSeniorBonus(). Only
+ * tcja-sunset mode swaps in the pre-TCJA bracket table.
  */
 export function federalTableForYear(
   year: number,
-  mode: 'current-law' | 'tcja-sunset',
+  mode: 'current-law' | 'tcja-sunset' | 'obbba',
 ): FederalTables {
   if (mode === 'tcja-sunset' && year >= TCJA_SUNSET_FIRST_YEAR) return FEDERAL_TCJA_SUNSET;
   return FEDERAL;

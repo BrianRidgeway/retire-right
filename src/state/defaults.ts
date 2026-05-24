@@ -7,7 +7,7 @@ import { Scenario } from '../types';
 export function makeBlankScenario(): Scenario {
   const thisYear = new Date().getFullYear();
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     startYear: thisYear,
     household: {
       filingStatus: 'single',
@@ -35,7 +35,7 @@ export function makeBlankScenario(): Scenario {
     assumptions: {
       inflation: 0.025,
       discountRate: 0.03,
-      taxLawMode: 'current-law',
+      taxLawMode: 'obbba',
       indexTablesToInflation: true,
       heirMarginalTaxRate: 0.32,
       heirs: [],
@@ -52,7 +52,7 @@ export function makeBlankScenario(): Scenario {
 export function makeDefaultScenario(): Scenario {
   const thisYear = new Date().getFullYear();
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     startYear: thisYear,
     household: {
       filingStatus: 'mfj',
@@ -141,7 +141,7 @@ export function makeDefaultScenario(): Scenario {
     assumptions: {
       inflation: 0.025,
       discountRate: 0.03,
-      taxLawMode: 'current-law',
+      taxLawMode: 'obbba',
       indexTablesToInflation: true,
       heirMarginalTaxRate: 0.32,
       heirs: [],

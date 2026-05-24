@@ -44,7 +44,13 @@ export function App() {
   const handleLoad = async () => {
     try {
       const loaded = await pickAndLoadScenarioJson();
-      if (loaded) loadScenario(loaded);
+      if (!loaded) return;
+      loadScenario(loaded.scenario);
+      if (loaded.migrations.length > 0) {
+        alert(
+          `Loaded successfully — your file was on an older schema version and the following migrations were applied:\n\n• ${loaded.migrations.join('\n• ')}`,
+        );
+      }
     } catch (err) {
       alert(`Load failed: ${(err as Error).message}`);
     }

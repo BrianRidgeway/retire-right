@@ -14,7 +14,11 @@ export function taxFromBrackets(income: number, brackets: Bracket[]): number {
 
 /**
  * Standard deduction for the given filing status and ages. Uses the supplied federal table
- * (so TCJA-sunset years use the pre-TCJA standard deduction). Falls back to FEDERAL.
+ * (so TCJA-sunset years use the pre-TCJA standard deduction). Includes the existing per-spouse
+ * 65+ additional standard deduction ($1,600 MFJ / $2,000 single for 2025).
+ *
+ * The OBBBA senior bonus ($6,000 per senior 65+, 2025-2028) is computed separately by
+ * obbbaSeniorBonus() because it has an AGI-based phaseout.
  */
 export function standardDeduction(
   status: StatusKey,
@@ -28,6 +32,43 @@ export function standardDeduction(
   if (primaryAge >= 65) add += extra;
   if (status === 'mfj' && spouseAge != null && spouseAge >= 65) add += extra;
   return base + add;
+}
+
+const OBBBA_SENIOR_BONUS = 6000;
+const OBBBA_PHASEOUT_RATE = 0.06; // 6 cents per dollar over threshold
+const OBBBA_PHASEOUT_START = { single: 75_000, mfj: 150_000 };
+const OBBBA_FIRST_YEAR = 2025;
+const OBBBA_LAST_YEAR = 2028;
+
+/**
+ * OBBBA "senior bonus" — additional $6,000 standard deduction per qualifying senior (age 65+),
+ * effective tax years 2025-2028 only (sunsets after 2028 unless extended). Phases out at 6% of
+ * AGI over $75K single / $150K MFJ — fully gone at $175K single / $250K MFJ.
+ *
+ * Returns 0 if tax-law mode is anything other than 'obbba', or outside the 2025-2028 window,
+ * or no qualifying seniors in the household.
+ */
+export function obbbaSeniorBonus(params: {
+  year: number;
+  mode: 'current-law' | 'tcja-sunset' | 'obbba';
+  status: StatusKey;
+  primaryAge: number;
+  spouseAge?: number;
+  agi: number;
+}): number {
+  if (params.mode !== 'obbba') return 0;
+  if (params.year < OBBBA_FIRST_YEAR || params.year > OBBBA_LAST_YEAR) return 0;
+
+  let qualifyingSeniors = 0;
+  if (params.primaryAge >= 65) qualifyingSeniors++;
+  if (params.status === 'mfj' && params.spouseAge != null && params.spouseAge >= 65) qualifyingSeniors++;
+  if (qualifyingSeniors === 0) return 0;
+
+  const baseBonus = OBBBA_SENIOR_BONUS * qualifyingSeniors;
+  const phaseoutStart = OBBBA_PHASEOUT_START[params.status];
+  const overage = Math.max(0, params.agi - phaseoutStart);
+  const reduction = overage * OBBBA_PHASEOUT_RATE;
+  return Math.max(0, baseBonus - reduction);
 }
 
 export type FederalTaxInput = {

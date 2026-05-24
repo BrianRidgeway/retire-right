@@ -2,7 +2,7 @@ import { Scenario, Strategy, YearResult } from '../../types';
 import { IRMAA, federalTableForYear } from '../tables';
 import { runScenario } from '../projection';
 import { scoreResults } from './score';
-import { standardDeduction } from '../tax/federal';
+import { obbbaSeniorBonus, standardDeduction } from '../tax/federal';
 import { isTraditional } from '../accounts';
 
 /**
@@ -101,7 +101,19 @@ function pickBestConversionForYear(
   // Build candidate AGI ceilings — use the federal table that applies to this year (TCJA sunset
   // years have very different bracket widths, and the optimal conversion target shifts accordingly).
   const yearTables = federalTableForYear(year, scenario.assumptions.taxLawMode);
-  const sd = standardDeduction(status, primaryAge, spouseAge, yearTables);
+  const baseSd = standardDeduction(status, primaryAge, spouseAge, yearTables);
+  // OBBBA senior bonus: use baselineAgi as an approximation of MAGI for phaseout. This is a slight
+  // chicken-and-egg (the conversion will raise AGI and may phase out the bonus) but it's a usable
+  // first-order target — the actual projection solve handles the precise AGI-dependent bonus.
+  const seniorBonus = obbbaSeniorBonus({
+    year,
+    mode: scenario.assumptions.taxLawMode,
+    status,
+    primaryAge,
+    spouseAge,
+    agi: baselineAgi,
+  });
+  const sd = baseSd + seniorBonus;
   const bracketTops = yearTables.ordinaryBrackets[status]
     .map((b) => b.max)
     .filter((v): v is number => v != null)

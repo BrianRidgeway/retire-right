@@ -128,7 +128,7 @@ export type Heir = z.infer<typeof HeirSchema>;
 export const AssumptionsSchema = z.object({
   inflation: z.number().default(0.025),
   discountRate: z.number().default(0.03),
-  taxLawMode: z.enum(['current-law', 'tcja-sunset']).default('current-law'),
+  taxLawMode: z.enum(['current-law', 'tcja-sunset', 'obbba']).default('obbba'),
   indexTablesToInflation: z.boolean().default(true),
   /**
    * Effective marginal federal+state rate heirs would pay on inherited traditional IRA/401(k)
@@ -160,8 +160,10 @@ export const SurvivorEventSchema = z.object({
 });
 export type SurvivorEvent = z.infer<typeof SurvivorEventSchema>;
 
+export const CURRENT_SCHEMA_VERSION = 2 as const;
+
 export const ScenarioSchema = z.object({
-  schemaVersion: z.literal(1),
+  schemaVersion: z.literal(CURRENT_SCHEMA_VERSION),
   startYear: z.number().int(),
   household: HouseholdSchema,
   accounts: z.array(AccountSchema),
@@ -275,5 +277,3 @@ export type StrategyResult = {
    */
   concerns: string[];
 };
-
-export const CURRENT_SCHEMA_VERSION = 1 as const;

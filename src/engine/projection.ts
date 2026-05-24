@@ -4,7 +4,7 @@ import {
   Scenario,
   YearResult,
 } from '../types';
-import { computeFederalTax, standardDeduction } from './tax/federal';
+import { computeFederalTax, obbbaSeniorBonus, standardDeduction } from './tax/federal';
 import { computeSocialSecurityTaxable, ssClaimAgeMultiplier } from './tax/ss';
 import { computeIrmaaTier } from './tax/irmaa';
 import { computeNiit } from './tax/niit';
@@ -343,7 +343,16 @@ export function runScenario(scenario: Scenario): YearResult[] {
       magiIrmaa = agi; // simplification: no tax-exempt interest tracked
       magiNiit = agi;
 
-      const sd = standardDeduction(status, primaryAge, spouseAge, yearFederal);
+      const baseSd = standardDeduction(status, primaryAge, spouseAge, yearFederal);
+      const seniorBonus = obbbaSeniorBonus({
+        year,
+        mode: assumptions.taxLawMode,
+        status,
+        primaryAge,
+        spouseAge,
+        agi,
+      });
+      const sd = baseSd + seniorBonus;
       const fed = computeFederalTax({
         status,
         ordinaryIncome,

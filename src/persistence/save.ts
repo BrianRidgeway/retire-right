@@ -1,4 +1,7 @@
 import { Scenario, ScenarioSchema } from '../types';
+import { migrateScenario } from './migrate';
+
+export type LoadResult = { scenario: Scenario; migrations: string[] };
 
 export function downloadScenarioJson(scenario: Scenario): void {
   const json = JSON.stringify(scenario, null, 2);
@@ -14,7 +17,7 @@ export function downloadScenarioJson(scenario: Scenario): void {
   URL.revokeObjectURL(url);
 }
 
-export async function pickAndLoadScenarioJson(): Promise<Scenario | null> {
+export async function pickAndLoadScenarioJson(): Promise<LoadResult | null> {
   return new Promise((resolve, reject) => {
     const input = document.createElement('input');
     input.type = 'file';
@@ -25,12 +28,14 @@ export async function pickAndLoadScenarioJson(): Promise<Scenario | null> {
       try {
         const text = await file.text();
         const parsed = JSON.parse(text);
-        const validated = ScenarioSchema.safeParse(parsed);
+        // Run schema migrations BEFORE validation — older versions need to be transformed first.
+        const { migrated, changes } = migrateScenario(parsed);
+        const validated = ScenarioSchema.safeParse(migrated);
         if (!validated.success) {
           reject(new Error(`Invalid scenario file: ${validated.error.issues.map((i) => i.message).join(', ')}`));
           return;
         }
-        resolve(validated.data);
+        resolve({ scenario: validated.data, migrations: changes });
       } catch (e) {
         reject(e);
       }
