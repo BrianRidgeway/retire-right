@@ -1,7 +1,7 @@
 import { Scenario, StrategyResult, YearResult } from '../../types';
 import { FEDERAL, IRMAA } from '../tables';
 import { rmdApplicableAge } from '../rmd';
-import { isRoth, isTraditional } from '../accounts';
+import { isTraditional } from '../accounts';
 
 const fmt = (n: number) => `$${Math.round(n).toLocaleString('en-US')}`;
 
