@@ -190,7 +190,7 @@ table.year-table {
 
 .account-row {
   display: grid;
-  grid-template-columns: 1.1fr 1.3fr 1.6fr 1fr 1fr 0.9fr 40px;
+  grid-template-columns: 1.1fr 1.3fr 1.6fr 1fr 1fr 0.9fr 0.9fr 0.8fr 40px;
   gap: 8px;
   margin-bottom: 8px;
   align-items: center;

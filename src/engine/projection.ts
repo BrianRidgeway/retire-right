@@ -390,6 +390,21 @@ export function runScenario(scenario: Scenario): YearResult[] {
       irmaaAnnual = irmaaAnnualUpfront;
     }
 
+    // --- Annual contributions (pre-retirement accumulation) ---
+    // Apply before growth so contributions also compound during the year.
+    for (const acc of accountStates) {
+      const origAccount = accounts.find((a) => a.id === acc.id);
+      if (!origAccount || origAccount.annualContribution <= 0) continue;
+      if (origAccount.contributionEndYear != null && year > origAccount.contributionEndYear) continue;
+      const contrib = origAccount.annualContribution;
+      acc.balance += contrib;
+      // Roth and taxable contributions are after-tax — basis tracks them.
+      // Traditional/HSA contributions are pre-tax — basis stays 0.
+      if (isRoth(acc.type) || acc.type === 'taxable') {
+        acc.costBasis = Math.min(acc.balance, acc.costBasis + contrib);
+      }
+    }
+
     // --- After solve: grow remaining balances for the year ---
     for (const acc of accountStates) {
       applyGrowth(acc);

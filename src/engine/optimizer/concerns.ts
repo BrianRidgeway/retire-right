@@ -1,7 +1,7 @@
 import { Scenario, StrategyResult, YearResult } from '../../types';
-import { IRMAA } from '../tables';
+import { FEDERAL, IRMAA } from '../tables';
 import { rmdApplicableAge } from '../rmd';
-import { isTraditional } from '../accounts';
+import { isRoth, isTraditional } from '../accounts';
 
 const fmt = (n: number) => `$${Math.round(n).toLocaleString('en-US')}`;
 
@@ -55,6 +55,104 @@ export function scenarioConcerns(scenario: Scenario): string[] {
   if (swap > 25_000) {
     out.push(
       `Asset location: ~${fmt(bondsInTaxable)} of bonds/REITs are in taxable accounts (annual ordinary-income tax drag) and ~${fmt(equitiesInTraditional)} of equities are in traditional accounts (would otherwise grow tax-deferred). Swap up to ${fmt(swap)} — put bonds/REITs in traditional, equities in taxable + Roth — to reduce the ongoing tax drag.`,
+    );
+  }
+
+  out.push(...contributionConcerns(scenario));
+
+  return out;
+}
+
+/**
+ * Roth IRA contribution income limits (2025, inflation-indexed by IRS annually).
+ * Phase-out: contributions reduce linearly from phaseOutStart to phaseOutEnd.
+ */
+const ROTH_IRA_LIMIT = {
+  single: { phaseOutStart: 150_000, phaseOutEnd: 165_000 },
+  mfj: { phaseOutStart: 236_000, phaseOutEnd: 246_000 },
+} as const;
+
+/**
+ * Concerns about contribution allocation (Roth vs Traditional) and Roth IRA income eligibility.
+ * These are scenario-level because they stem from the user's income and account setup, not
+ * from any particular withdrawal/conversion strategy.
+ */
+function contributionConcerns(scenario: Scenario): string[] {
+  const out: string[] = [];
+  const { startYear, household, accounts, incomeStreams } = scenario;
+  const status = household.filingStatus;
+
+  // --- Estimate year-1 ordinary income from active income streams ---
+  let yearOneIncome = 0;
+  for (const is of incomeStreams) {
+    if (startYear < is.startYear) continue;
+    if (is.endYear != null && startYear > is.endYear) continue;
+    if (is.kind === 'salary') yearOneIncome += is.annualAmount;
+    else if (is.kind === 'pension') yearOneIncome += is.annualAmount * is.taxablePercent;
+    else yearOneIncome += is.annualAmount;
+  }
+
+  const accsWithContribs = accounts.filter((a) => (a.annualContribution ?? 0) > 0);
+  if (accsWithContribs.length === 0) return out; // nothing to advise on
+
+  const hasRothIraContrib = accsWithContribs.some((a) => a.type === 'roth-ira');
+  const hasTradContrib = accsWithContribs.some((a) => isTraditional(a.type));
+  const hasRoth401kAnywhere = accounts.some((a) => a.type === 'roth-401k');
+  const hasRoth401kContrib = accsWithContribs.some((a) => a.type === 'roth-401k');
+  const limit = ROTH_IRA_LIMIT[status];
+
+  // --- Roth IRA income limit checks ---
+  if (hasRothIraContrib) {
+    if (yearOneIncome >= limit.phaseOutEnd) {
+      if (hasRoth401kAnywhere) {
+        out.push(
+          `Roth IRA income limit: estimated income (~${fmt(yearOneIncome)}) exceeds the ${status === 'mfj' ? 'MFJ' : 'single'} phase-out (${fmt(limit.phaseOutStart)}–${fmt(limit.phaseOutEnd)}), so direct Roth IRA contributions are not allowed. Your Roth 401(k) has no income limit — redirect those contributions there, or use the backdoor Roth method (non-deductible traditional IRA → immediate Roth conversion per IRC §408(d)(3)).`,
+        );
+      } else {
+        out.push(
+          `Roth IRA income limit: estimated income (~${fmt(yearOneIncome)}) exceeds the ${status === 'mfj' ? 'MFJ' : 'single'} phase-out (${fmt(limit.phaseOutStart)}–${fmt(limit.phaseOutEnd)}), so direct Roth IRA contributions are not allowed. Use the backdoor Roth: contribute to a non-deductible traditional IRA then immediately convert to Roth. If your employer plan offers a Roth 401(k) election, that avoids the income limit entirely.`,
+        );
+      }
+    } else if (yearOneIncome >= limit.phaseOutStart) {
+      out.push(
+        `Roth IRA income limit: estimated income (~${fmt(yearOneIncome)}) is in the ${status === 'mfj' ? 'MFJ' : 'single'} Roth IRA phase-out range (${fmt(limit.phaseOutStart)}–${fmt(limit.phaseOutEnd)}). Only a partial Roth IRA contribution is allowed; consider the backdoor Roth for the ineligible portion.`,
+      );
+    }
+  }
+
+  // --- High income + no Roth 401k: suggest conversion or Roth 401k ---
+  // User can't do direct Roth IRA; Roth 401k (no income limit) or conversions are the path.
+  if (yearOneIncome >= limit.phaseOutEnd && !hasRoth401kAnywhere && !hasRothIraContrib) {
+    out.push(
+      `Income above Roth IRA limit (~${fmt(yearOneIncome)} vs ${fmt(limit.phaseOutEnd)} cutoff) with no Roth 401(k) found. Check if your employer plan offers a Roth 401(k) election — it has no income limit. If not, the backdoor Roth IRA (non-deductible contribution → same-year conversion) achieves the same result up to the annual IRA limit. The optimizer's Roth ladder conversions handle moving existing traditional balances to Roth.`,
+    );
+  }
+
+  // --- Roth vs Traditional bracket-based recommendation ---
+  // Determine marginal ordinary bracket on estimated income minus standard deduction.
+  const sd = FEDERAL.standardDeduction[status];
+  const taxableOrdinary = Math.max(0, yearOneIncome - sd);
+  const brackets = FEDERAL.ordinaryBrackets[status];
+  const marginalBracket = brackets.find(
+    (b) => taxableOrdinary >= b.min && (b.max == null || taxableOrdinary < b.max),
+  );
+  const marginalRate = marginalBracket?.rate ?? 0.37;
+
+  if (marginalRate <= 0.22 && hasTradContrib) {
+    // Low bracket now → Roth contributions are attractive (pay 22% or less now, avoid future taxation)
+    if (hasRoth401kAnywhere && !hasRoth401kContrib) {
+      out.push(
+        `Contribution type: current marginal rate is ${(marginalRate * 100).toFixed(0)}%. You have a Roth 401(k) account — consider directing new 401(k) contributions there rather than (or in addition to) the traditional 401(k). You pay ${(marginalRate * 100).toFixed(0)}% now; Roth growth is then tax-free and has no RMDs.`,
+      );
+    } else if (!hasRoth401kAnywhere) {
+      out.push(
+        `Contribution type: current marginal rate is ${(marginalRate * 100).toFixed(0)}%. If your employer offers a Roth 401(k) election, consider redirecting traditional contributions there — paying ${(marginalRate * 100).toFixed(0)}% now locks in today's low rate and produces tax-free, RMD-free growth.`,
+      );
+    }
+  } else if (marginalRate >= 0.32 && (hasRoth401kContrib || (hasRothIraContrib && yearOneIncome < limit.phaseOutStart))) {
+    // High bracket now → pre-tax contributions make more sense; convert later in low-income years
+    out.push(
+      `Contribution type: current marginal rate is ${(marginalRate * 100).toFixed(0)}%. Pre-tax (traditional) contributions reduce your current tax at ${(marginalRate * 100).toFixed(0)}%, which is typically higher than the rate you'll face on Roth conversions during low-income retirement years before RMDs begin. Consider shifting some Roth 401(k) contributions to traditional, then convert via the optimizer's Roth ladder in cheaper years.`,
     );
   }
 

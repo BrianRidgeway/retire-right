@@ -105,6 +105,29 @@ export function AccountsStep() {
             </p>
           </HelpButton>
         </div>
+        <div>
+          Annual contrib.
+          <HelpButton title="Annual contribution">
+            <p>
+              Amount added to this account each year (e.g. 401k deferrals + employer match, IRA contributions).
+              Applied before growth each year so contributions also compound. Leave 0 if you are already retired
+              or no longer contributing to this account.
+            </p>
+            <p>
+              Set a <em>contribution end year</em> to stop contributions in a specific year (e.g. your last
+              working year). If blank, contributions continue for the full plan.
+            </p>
+          </HelpButton>
+        </div>
+        <div>
+          Contrib. ends
+          <HelpButton title="Contribution end year">
+            <p>
+              Last year contributions are made to this account. Typically your final year of employment.
+              Leave blank to contribute every year of the plan.
+            </p>
+          </HelpButton>
+        </div>
         <div></div>
       </div>
 
@@ -154,6 +177,21 @@ export function AccountsStep() {
                 step="0.001"
                 value={a.expectedReturn}
                 onChange={(e) => updateAccount(a.id, { expectedReturn: Number(e.target.value) })}
+              />
+              <input
+                type="number"
+                value={a.annualContribution ?? 0}
+                onChange={(e) => updateAccount(a.id, { annualContribution: Number(e.target.value) })}
+              />
+              <input
+                type="number"
+                value={a.contributionEndYear ?? ''}
+                placeholder="(no end)"
+                onChange={(e) =>
+                  updateAccount(a.id, {
+                    contributionEndYear: e.target.value === '' ? undefined : Number(e.target.value),
+                  })
+                }
               />
               <button className="btn-sm btn-danger" onClick={() => removeAccount(a.id)}>
                 ✕
