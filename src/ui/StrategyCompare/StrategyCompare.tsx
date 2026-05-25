@@ -1,26 +1,25 @@
 import { useScenarioStore } from '../../state/scenarioStore';
-import { Scenario, StrategyResult, YearResult } from '../../types';
+import { Scenario, StrategyResult } from '../../types';
 
 const fmt = (n: number) => `$${Math.round(n).toLocaleString('en-US')}`;
 
-function retirementRow(results: YearResult[]): YearResult | null {
-  let hadWages = false;
-  for (const r of results) {
-    if (r.wages > 0) { hadWages = true; continue; }
-    if (hadWages && r.wages === 0) return r;
-  }
-  return null;
+function retirementYearFromScenario(scenario: Scenario): number | null {
+  const salaryEndYears = scenario.incomeStreams
+    .filter((s) => s.kind === 'salary' && s.endYear != null && s.endYear >= scenario.startYear)
+    .map((s) => s.endYear as number);
+  if (salaryEndYears.length === 0) return null;
+  return Math.max(...salaryEndYears) + 1;
 }
 
 export function StrategyCompare({ onApply }: { onApply?: () => void }) {
+  const scenario = useScenarioStore((s) => s.scenario);
   const optimizerResults = useScenarioStore((s) => s.optimizerResults);
   const running = useScenarioStore((s) => s.optimizerRunning);
   const runOptimizer = useScenarioStore((s) => s.runOptimizer);
   const updateScenario = useScenarioStore((s) => s.updateScenario);
-  const currentStrategy = useScenarioStore((s) => s.scenario.strategy);
-  const zeroReturnAccounts = useScenarioStore((s) =>
-    s.scenario.accounts.filter((a) => a.balance > 0 && a.expectedReturn <= 0)
-  );
+  const currentStrategy = scenario.strategy;
+  const zeroReturnAccounts = scenario.accounts.filter((a) => a.balance > 0 && a.expectedReturn <= 0);
+  const retYear = retirementYearFromScenario(scenario);
 
   const applyStrategy = (r: StrategyResult) => {
     updateScenario((s: Scenario) => ({ ...s, strategy: r.strategy }));
@@ -79,6 +78,7 @@ export function StrategyCompare({ onApply }: { onApply?: () => void }) {
         baseline={baseline}
         currentStrategyLabel={currentStrategy.label}
         onApply={applyStrategy}
+        retYear={retYear}
       />
       <StrategySection
         title="Alternatives"
@@ -86,6 +86,7 @@ export function StrategyCompare({ onApply }: { onApply?: () => void }) {
         baseline={baseline}
         currentStrategyLabel={currentStrategy.label}
         onApply={applyStrategy}
+        retYear={retYear}
         highlightFirst
       />
     </div>
@@ -99,6 +100,7 @@ function StrategySection({
   currentStrategyLabel,
   onApply,
   highlightFirst,
+  retYear,
 }: {
   title: string;
   strategies: StrategyResult[];
@@ -106,6 +108,7 @@ function StrategySection({
   currentStrategyLabel: string;
   onApply: (r: StrategyResult) => void;
   highlightFirst?: boolean;
+  retYear: number | null;
 }) {
   return (
     <div className="panel">
@@ -119,6 +122,7 @@ function StrategySection({
             best={highlightFirst && i === 0}
             isActive={r.strategy.label === currentStrategyLabel}
             onApply={() => onApply(r)}
+            retYear={retYear}
           />
         ))}
       </div>
@@ -132,12 +136,14 @@ function StrategyCard({
   best,
   isActive,
   onApply,
+  retYear,
 }: {
   r: StrategyResult;
   baseline: StrategyResult;
   best?: boolean;
   isActive?: boolean;
   onApply: () => void;
+  retYear: number | null;
 }) {
   const dHeir = r.endingHeirNetWorth - baseline.endingHeirNetWorth;
   const isBaseline = r === baseline;
@@ -193,7 +199,7 @@ function StrategyCard({
       </div>
 
       {(() => {
-        const retRow = retirementRow(r.results);
+        const retRow = retYear != null ? r.results.find((row) => row.year === retYear) ?? null : null;
         return (
           <div className="grid-4" style={{ marginTop: 12, fontSize: 12 }}>
             <div>

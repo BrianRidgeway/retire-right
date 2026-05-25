@@ -1,17 +1,21 @@
 import { useScenarioStore, lifetimeTotals } from '../../state/scenarioStore';
 import { IncomeStackChart, MagiVsIrmaaChart, NetWorthChart, TaxStackChart } from '../Charts/Charts';
-import { YearResult } from '../../types';
+import { Scenario } from '../../types';
 
 const fmt = (n: number) => `$${Math.round(n).toLocaleString('en-US')}`;
 
-/** First year where wages drop to zero after being non-zero — the retirement transition year. */
-function retirementRow(results: YearResult[]): YearResult | null {
-  let hadWages = false;
-  for (const r of results) {
-    if (r.wages > 0) { hadWages = true; continue; }
-    if (hadWages && r.wages === 0) return r;
-  }
-  return null;
+/**
+ * Derive the first retirement year from salary income streams.
+ * Uses the latest salary endYear + 1. Reading from the scenario directly is more reliable
+ * than scanning r.wages — wages can look zero in year 1 if a salary stream starts later,
+ * causing the transition detector to fire at the wrong year.
+ */
+function retirementYearFromScenario(scenario: Scenario): number | null {
+  const salaryEndYears = scenario.incomeStreams
+    .filter((s) => s.kind === 'salary' && s.endYear != null && s.endYear >= scenario.startYear)
+    .map((s) => s.endYear as number);
+  if (salaryEndYears.length === 0) return null;
+  return Math.max(...salaryEndYears) + 1;
 }
 
 export function ResultsDashboard() {
@@ -29,7 +33,9 @@ export function ResultsDashboard() {
 
   const totals = lifetimeTotals(results, scenario.assumptions.discountRate, scenario.startYear);
   const last = results[results.length - 1];
-  const retRow = retirementRow(results);
+  const retYear = retirementYearFromScenario(scenario);
+  const retRow = retYear != null ? results.find((r) => r.year === retYear) ?? null : null;
+  const yearsToRetirement = retYear != null ? retYear - scenario.startYear : null;
   const hasActiveStrategy =
     Object.keys(scenario.strategy.rothConversions).length > 0 ||
     Object.keys(scenario.strategy.ssClaimAges).length > 0 ||
@@ -87,7 +93,12 @@ export function ResultsDashboard() {
           <Card
             label={`At retirement (${retRow.year}, age ${retRow.primaryAge})`}
             value={fmt(retRow.netWorthEoy)}
-            sub="Projected portfolio balance when wages stop"
+            sub={
+              yearsToRetirement != null && yearsToRetirement <= 1
+                ? `⚠ Only ${yearsToRetirement} year(s) of pre-retirement growth — check salary End Year on the Income tab`
+                : `After ${yearsToRetirement} years of growth + contributions from ${scenario.startYear}`
+            }
+            bad={yearsToRetirement != null && yearsToRetirement <= 1}
           />
         )}
         <Card label={`Ending net worth (${last.year})`} value={fmt(totals.endingNetWorth)} />

@@ -135,9 +135,10 @@ export function HouseholdStep() {
             table, the reference point for PV discounting, and the basis for IRMAA's Y-2 MAGI lookback.
           </p>
           <p>
-            Almost always set this to <strong>the current year</strong> or the year you intend to retire. Setting
-            it to a past year means you're projecting an already-elapsed period — useful for back-testing, not
-            for live planning.
+            Set this to <strong>the current year</strong>. The projection grows your accounts from now through
+            your plan end age — those pre-retirement years of compounding are only modeled if the plan starts now.
+            Setting it to your retirement year means 11+ years of growth and contributions are skipped entirely,
+            so your "at retirement" balance would look the same as today.
           </p>
         </HelpButton>
       </h3>
