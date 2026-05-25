@@ -1,7 +1,16 @@
 import { useScenarioStore } from '../../state/scenarioStore';
-import { Scenario, StrategyResult } from '../../types';
+import { Scenario, StrategyResult, YearResult } from '../../types';
 
 const fmt = (n: number) => `$${Math.round(n).toLocaleString('en-US')}`;
+
+function retirementRow(results: YearResult[]): YearResult | null {
+  let hadWages = false;
+  for (const r of results) {
+    if (r.wages > 0) { hadWages = true; continue; }
+    if (hadWages && r.wages === 0) return r;
+  }
+  return null;
+}
 
 export function StrategyCompare({ onApply }: { onApply?: () => void }) {
   const optimizerResults = useScenarioStore((s) => s.optimizerResults);
@@ -9,6 +18,9 @@ export function StrategyCompare({ onApply }: { onApply?: () => void }) {
   const runOptimizer = useScenarioStore((s) => s.runOptimizer);
   const updateScenario = useScenarioStore((s) => s.updateScenario);
   const currentStrategy = useScenarioStore((s) => s.scenario.strategy);
+  const zeroReturnAccounts = useScenarioStore((s) =>
+    s.scenario.accounts.filter((a) => a.balance > 0 && a.expectedReturn <= 0)
+  );
 
   const applyStrategy = (r: StrategyResult) => {
     updateScenario((s: Scenario) => ({ ...s, strategy: r.strategy }));
@@ -43,6 +55,12 @@ export function StrategyCompare({ onApply }: { onApply?: () => void }) {
 
   return (
     <div>
+      {zeroReturnAccounts.length > 0 && (
+        <div className="panel" style={{ borderColor: 'var(--warn, #d97706)', background: 'rgba(217,119,6,0.08)' }}>
+          <strong style={{ color: 'var(--warn, #d97706)' }}>Expected return is 0% on {zeroReturnAccounts.length} account{zeroReturnAccounts.length > 1 ? 's' : ''}: {zeroReturnAccounts.map((a) => a.label).join(', ')}.</strong>
+          {' '}These accounts won't grow — go to Inputs → Accounts and set a non-zero Expected Return (e.g. 0.06 for 6%).
+        </div>
+      )}
       <div className="panel">
         <div className="row" style={{ justifyContent: 'space-between' }}>
           <h2 style={{ margin: 0 }}>Strategies</h2>
@@ -174,24 +192,35 @@ function StrategyCard({
         <div style={{ fontSize: 13, lineHeight: 1.5 }}>{r.rationale}</div>
       </div>
 
-      <div className="grid-4" style={{ marginTop: 12, fontSize: 12 }}>
-        <div>
-          <div className="muted">Lifetime spending</div>
-          <div>{fmt(r.lifetimeAfterTax)}</div>
-        </div>
-        <div>
-          <div className="muted">Lifetime tax (you)</div>
-          <div>{fmt(r.lifetimeTax)}</div>
-        </div>
-        <div>
-          <div className="muted">Ending net worth</div>
-          <div>{fmt(r.endingNetWorth)}</div>
-        </div>
-        <div>
-          <div className="muted">Heirs after tax</div>
-          <div>{fmt(r.endingHeirNetWorth)}</div>
-        </div>
-      </div>
+      {(() => {
+        const retRow = retirementRow(r.results);
+        return (
+          <div className="grid-4" style={{ marginTop: 12, fontSize: 12 }}>
+            <div>
+              <div className="muted">Lifetime spending</div>
+              <div>{fmt(r.lifetimeAfterTax)}</div>
+            </div>
+            <div>
+              <div className="muted">Lifetime tax (you)</div>
+              <div>{fmt(r.lifetimeTax)}</div>
+            </div>
+            {retRow && (
+              <div>
+                <div className="muted">At retirement ({retRow.year})</div>
+                <div>{fmt(retRow.netWorthEoy)}</div>
+              </div>
+            )}
+            <div>
+              <div className="muted">Ending net worth</div>
+              <div>{fmt(r.endingNetWorth)}</div>
+            </div>
+            <div>
+              <div className="muted">Heirs after tax</div>
+              <div>{fmt(r.endingHeirNetWorth)}</div>
+            </div>
+          </div>
+        );
+      })()}
 
       {r.heirSensitivity.length > 0 && (
         <div style={{ marginTop: 10, padding: 10, background: 'rgba(56,189,248,0.06)', borderRadius: 4, fontSize: 12 }}>

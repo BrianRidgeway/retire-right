@@ -1,7 +1,18 @@
 import { useScenarioStore, lifetimeTotals } from '../../state/scenarioStore';
 import { IncomeStackChart, MagiVsIrmaaChart, NetWorthChart, TaxStackChart } from '../Charts/Charts';
+import { YearResult } from '../../types';
 
 const fmt = (n: number) => `$${Math.round(n).toLocaleString('en-US')}`;
+
+/** First year where wages drop to zero after being non-zero — the retirement transition year. */
+function retirementRow(results: YearResult[]): YearResult | null {
+  let hadWages = false;
+  for (const r of results) {
+    if (r.wages > 0) { hadWages = true; continue; }
+    if (hadWages && r.wages === 0) return r;
+  }
+  return null;
+}
 
 export function ResultsDashboard() {
   const scenario = useScenarioStore((s) => s.scenario);
@@ -18,11 +29,13 @@ export function ResultsDashboard() {
 
   const totals = lifetimeTotals(results, scenario.assumptions.discountRate, scenario.startYear);
   const last = results[results.length - 1];
+  const retRow = retirementRow(results);
   const hasActiveStrategy =
     Object.keys(scenario.strategy.rothConversions).length > 0 ||
     Object.keys(scenario.strategy.ssClaimAges).length > 0 ||
     scenario.strategy.withdrawalPolicy !== 'conventional';
   const heirGap = totals.endingNetWorth - totals.endingHeirNetWorth;
+  const zeroReturnAccounts = scenario.accounts.filter((a) => a.balance > 0 && a.expectedReturn <= 0);
 
   const revertStrategy = () =>
     update((s) => ({
@@ -60,9 +73,23 @@ export function ResultsDashboard() {
         </div>
       )}
 
+      {zeroReturnAccounts.length > 0 && (
+        <div className="panel" style={{ borderColor: 'var(--warn, #d97706)', background: 'rgba(217,119,6,0.08)' }}>
+          <strong style={{ color: 'var(--warn, #d97706)' }}>Expected return is 0% on {zeroReturnAccounts.length} account{zeroReturnAccounts.length > 1 ? 's' : ''}: {zeroReturnAccounts.map((a) => a.label).join(', ')}.</strong>
+          {' '}These accounts won't grow — go to Inputs → Accounts and set a non-zero Expected Return (e.g. 0.06 for 6%).
+        </div>
+      )}
+
       <div className="cards">
         <Card label="Lifetime spending covered" value={fmt(totals.lifetimeAfterTax)} />
         <Card label="Lifetime tax paid" value={fmt(totals.lifetimeTax)} />
+        {retRow && (
+          <Card
+            label={`At retirement (${retRow.year}, age ${retRow.primaryAge})`}
+            value={fmt(retRow.netWorthEoy)}
+            sub="Projected portfolio balance when wages stop"
+          />
+        )}
         <Card label={`Ending net worth (${last.year})`} value={fmt(totals.endingNetWorth)} />
         <Card
           label="Heirs receive after tax"
